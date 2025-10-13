@@ -1,0 +1,54 @@
+@import '../../../styles/variables.scss';
+
+.card {
+  background-color: $color-blanco;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  overflow: hidden;
+  transition: all $transition-speed ease;
+
+  &--hoverable {
+    &:hover {
+      box-shadow: $box-shadow-lg;
+      transform: translateY(-4px);
+    }
+  }
+
+  &--clickable {
+    cursor: pointer;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: $color-texto-principal;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: $font-size-sm;
+    color: $color-texto-secundario;
+    margin: 4px 0 0 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__body {
+    padding: $spacing-lg;
+
+    &--no-padding {
+      padding: 0;
+    }
+  }
+}

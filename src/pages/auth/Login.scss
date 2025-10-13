@@ -1,0 +1,111 @@
+@import '../../styles/variables.scss';
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, $color-azul 0%, $color-azul-dark 100%);
+  padding: 20px;
+}
+
+.login-card {
+  background-color: $color-blanco;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 450px;
+  padding: $spacing-xl;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+}
+
+.login-logo {
+  width: 200px;
+  margin-bottom: $spacing-lg;
+}
+
+.login-title {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $color-texto-principal;
+  margin: 0 0 $spacing-xs 0;
+}
+
+.login-subtitle {
+  font-size: $font-size-base;
+  color: $color-texto-secundario;
+  margin: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.login-error {
+  background-color: rgba($color-danger, 0.1);
+  border: 1px solid $color-danger;
+  border-radius: $border-radius;
+  padding: $spacing-md;
+  
+  p {
+    margin: 0;
+    color: $color-danger;
+    font-size: $font-size-sm;
+    text-align: center;
+  }
+}
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-checkbox {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+  
+  span {
+    font-size: $font-size-sm;
+    color: $color-texto-secundario;
+  }
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $color-border;
+}
+
+.login-version {
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+  margin: 0;
+}
+
+@media (max-width: 576px) {
+  .login-card {
+    padding: $spacing-lg;
+  }
+
+  .login-logo {
+    width: 150px;
+  }
+
+  .login-title {
+    font-size: $font-size-lg;
+  }
+}

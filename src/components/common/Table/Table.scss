@@ -1,0 +1,86 @@
+@import '../../../styles/variables.scss';
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: $color-blanco;
+  font-size: $font-size-sm;
+
+  &__head {
+    background-color: $color-fondo;
+  }
+
+  &__header {
+    padding: $spacing-md;
+    text-align: left;
+    font-weight: 700;
+    color: $color-texto-principal;
+    border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+  }
+
+  &__body {
+    tr {
+      border-bottom: 1px solid $color-border;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  &__cell {
+    padding: $spacing-md;
+    color: $color-texto-principal;
+  }
+
+  &__empty {
+    padding: $spacing-xl;
+    text-align: center;
+    color: $color-texto-secundario;
+  }
+
+  &__row--clickable {
+    cursor: pointer;
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: rgba($color-azul, 0.05);
+    }
+  }
+
+  // Variantes
+  &--striped {
+    tbody tr:nth-child(even) {
+      background-color: rgba($color-fondo, 0.5);
+    }
+  }
+
+  &--hoverable {
+    tbody tr {
+      transition: background-color $transition-speed ease;
+
+      &:hover {
+        background-color: rgba($color-azul, 0.05);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .table {
+    font-size: 12px;
+
+    &__header,
+    &__cell {
+      padding: $spacing-sm;
+    }
+  }
+}

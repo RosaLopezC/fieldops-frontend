@@ -1,0 +1,66 @@
+// ========================================
+// COLORES PRINCIPALES - FieldOps
+// ========================================
+
+// Colores de marca (basados en tu logo)
+$color-naranja: #FF6B35;
+$color-naranja-hover: #ff8555;
+$color-naranja-dark: #e55a2b;
+
+$color-azul: #005B9A;
+$color-azul-hover: #0066cc;
+$color-azul-dark: #004876;
+
+// Colores de estado
+$color-success: #28a745;
+$color-warning: #ffc107;
+$color-danger: #dc3545;
+$color-info: #17a2b8;
+
+// Grises y neutrales
+$color-texto-principal: #2c3e50;
+$color-texto-secundario: #6c757d;
+$color-border: #dee2e6;
+$color-fondo: #f8f9fa;
+$color-blanco: #ffffff;
+
+// ========================================
+// TIPOGRAFÍA
+// ========================================
+$font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$font-size-xs: 12px;   // ← AGREGADO
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 24px;
+
+// ========================================
+// ESPACIADOS
+// ========================================
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// ========================================
+// BORDES Y SOMBRAS
+// ========================================
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$border-radius-lg: 12px;
+
+$box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$box-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+// ========================================
+// SIDEBAR Y LAYOUT
+// ========================================
+$sidebar-width: 280px;
+$sidebar-collapsed-width: 80px;
+$header-height: 70px;
+
+// ========================================
+// TRANSICIONES
+// ========================================
+$transition-speed: 0.3s;

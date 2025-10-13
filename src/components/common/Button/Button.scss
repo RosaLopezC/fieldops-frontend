@@ -1,0 +1,160 @@
+@import '../../../styles/variables.scss';
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: 12px 24px;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all $transition-speed ease;
+  white-space: nowrap;
+
+  // Para botones con solo iconos
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__text {
+    display: flex;
+    align-items: center;
+  }
+
+  // Cuando solo hay icono sin texto
+  &--icon-only {
+    padding: 12px;
+    min-width: 40px;
+    min-height: 40px;
+    
+    .btn__icon {
+      margin: 0;
+    }
+  }
+
+  &:hover:not(&--disabled):not(&--loading) {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow-lg;
+  }
+
+  &:active:not(&--disabled):not(&--loading) {
+    transform: translateY(0);
+  }
+
+  // Variantes
+  &--primary {
+    background-color: $color-naranja;
+    color: $color-blanco;
+
+    &:hover:not(.btn--disabled) {
+      background-color: $color-naranja-hover;
+    }
+  }
+
+  &--secondary {
+    background-color: $color-azul;
+    color: $color-blanco;
+
+    &:hover:not(.btn--disabled) {
+      background-color: $color-azul-hover;
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    color: $color-naranja;
+    border: 2px solid $color-naranja;
+
+    &:hover:not(.btn--disabled) {
+      background-color: $color-naranja;
+      color: $color-blanco;
+    }
+  }
+
+  &--danger {
+    background-color: $color-danger;
+    color: $color-blanco;
+
+    &:hover:not(.btn--disabled) {
+      background-color: darken($color-danger, 10%);
+    }
+  }
+
+  &--success {
+    background-color: $color-success;
+    color: $color-blanco;
+
+    &:hover:not(.btn--disabled) {
+      background-color: darken($color-success, 10%);
+    }
+  }
+
+  // Tamaños con ajuste para iconos
+  &--small {
+    padding: 8px 16px;
+    font-size: $font-size-sm;
+
+    &.btn--icon-only {
+      padding: 8px;
+      min-width: 32px;
+      min-height: 32px;
+    }
+  }
+
+  &--medium {
+    padding: 12px 24px;
+    font-size: $font-size-base;
+
+    &.btn--icon-only {
+      padding: 12px;
+      min-width: 40px;
+      min-height: 40px;
+    }
+  }
+
+  &--large {
+    padding: 16px 32px;
+    font-size: $font-size-lg;
+
+    &.btn--icon-only {
+      padding: 16px;
+      min-width: 48px;
+      min-height: 48px;
+    }
+  }
+
+  // Estados
+  &--full-width {
+    width: 100%;
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &--loading {
+    cursor: wait;
+    pointer-events: none;
+  }
+
+  // Spinner de carga
+  &__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: $color-blanco;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}

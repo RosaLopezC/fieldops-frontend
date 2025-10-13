@@ -1,0 +1,74 @@
+import React, { useEffect } from 'react';
+import { FaTimes } from 'react-icons/fa';
+import Button from '../Button';
+import './Modal.scss';
+
+const Modal = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children,
+  footer,
+  size = 'medium',
+  closeOnOverlayClick = true
+}) => {
+  // Cerrar con ESC
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
+
+  // Prevenir scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget && closeOnOverlayClick) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className={`modal modal--${size}`}>
+        <div className="modal__header">
+          <h2 className="modal__title">{title}</h2>
+          <button 
+            className="modal__close"
+            onClick={onClose}
+            aria-label="Cerrar modal"
+          >
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="modal__body">
+          {children}
+        </div>
+
+        {footer && (
+          <div className="modal__footer">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Modal;

@@ -1,0 +1,88 @@
+@import '../../../styles/variables.scss';
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  &--full-width {
+    width: 100%;
+  }
+}
+
+.input-label {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-texto-principal;
+
+  &__required {
+    color: $color-danger;
+  }
+}
+
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  color: $color-texto-secundario;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  z-index: 1;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background-color: $color-blanco;
+  transition: all $transition-speed ease;
+
+  // Si hay icono, añadir padding a la izquierda
+  .input-container:has(.input-icon) & {
+    padding-left: 45px;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+    box-shadow: 0 0 0 3px rgba($color-azul, 0.1);
+  }
+
+  &::placeholder {
+    color: $color-texto-secundario;
+  }
+
+  &--error {
+    border-color: $color-danger;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($color-danger, 0.1);
+    }
+  }
+
+  &--disabled {
+    background-color: $color-fondo;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &--full-width {
+    width: 100%;
+  }
+}
+
+.input-error {
+  font-size: $font-size-sm;
+  color: $color-danger;
+  margin-top: 4px;
+}
