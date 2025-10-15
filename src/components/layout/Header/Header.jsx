@@ -4,7 +4,7 @@ import useAuth from '../../../hooks/useAuth';
 import { FaBell, FaChevronDown, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import './Header.scss';
 
-const Header = () => {
+const Header = ({ collapsed }) => { // ← AGREGAR collapsed como prop
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -21,20 +21,17 @@ const Header = () => {
   };
 
   return (
-    <header className="app-header">
+    <header className={`app-header ${collapsed ? 'app-header--expanded' : ''}`}>
+      {/* ↑ AGREGAR la clase condicional */}
       <div className="header-content">
-        {/* Espacio vacío para balance (el sidebar está a la izquierda) */}
         <div className="header-left"></div>
 
-        {/* Sección derecha: notificaciones y usuario */}
         <div className="header-right">
-          {/* Notificaciones */}
           <button className="header-icon-btn">
             <FaBell />
             <span className="notification-badge">3</span>
           </button>
 
-          {/* Usuario dropdown */}
           <div className="user-menu">
             <button 
               className="user-menu-btn"

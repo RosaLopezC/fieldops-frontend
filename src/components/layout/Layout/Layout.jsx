@@ -11,7 +11,7 @@ const Layout = () => {
     <div className="app-layout">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       <div className={`app-main ${collapsed ? 'app-main--expanded' : ''}`}>
-        <Header />
+        <Header collapsed={collapsed} /> {/* ← PASAR collapsed */}
         <main className="app-content">
           <Outlet />
         </main>

@@ -20,6 +20,12 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       section: 'ACCIONES',
       items: [
         {
+          id: 'dashboard',
+          label: 'Dashboard',
+          icon: FaChartBar,
+          path: '/supervisor/dashboard'
+        },
+        {
           id: 'reportes',
           label: 'Reportes',
           icon: FaFileAlt,

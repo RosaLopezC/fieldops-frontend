@@ -115,7 +115,7 @@ const AppRoutes = () => {
           <Route path="reportes/postes" element={<SupervisorReports />} />
           <Route path="reportes/predios" element={<SupervisorReports />} />
           <Route path="soporte" element={<ComingSoonPage role="Soporte" />} />
-          <Route path="" element={<Navigate to="reportes" replace />} />
+          <Route path="" element={<Navigate to="dashboard" replace />} /> {/* ← CAMBIAR de reportes a dashboard */}
         </Route>
 
         {/* Rutas del ADMIN */}

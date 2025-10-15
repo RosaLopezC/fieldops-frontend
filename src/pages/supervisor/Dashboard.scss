@@ -1,0 +1,155 @@
+@import '../../styles/variables.scss';
+
+.supervisor-dashboard {
+  max-width: 100%;
+}
+
+.dashboard-header {
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+  }
+}
+
+// Tarjetas de métricas
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg !important;
+  border-left: 4px solid transparent;
+  transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $box-shadow-lg;
+  }
+
+  &--total {
+    border-left-color: $color-azul;
+    .metric-icon {
+      background: linear-gradient(135deg, $color-azul 0%, darken($color-azul, 10%) 100%);
+    }
+  }
+
+  &--pending {
+    border-left-color: #FFC107;
+    .metric-icon {
+      background: linear-gradient(135deg, #FFC107 0%, darken(#FFC107, 10%) 100%);
+    }
+  }
+
+  &--completed {
+    border-left-color: #28a745;
+    .metric-icon {
+      background: linear-gradient(135deg, #28a745 0%, darken(#28a745, 10%) 100%);
+    }
+  }
+
+  &--observed {
+    border-left-color: #dc3545;
+    .metric-icon {
+      background: linear-gradient(135deg, #dc3545 0%, darken(#dc3545, 10%) 100%);
+    }
+  }
+}
+
+.metric-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-blanco;
+  font-size: 24px;
+}
+
+.metric-content {
+  flex: 1;
+
+  h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: $color-texto-principal;
+    margin: 0 0 4px 0;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-texto-secundario;
+    margin: 0;
+  }
+}
+
+// Gráficos
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+.chart-container {
+  padding: $spacing-md 0;
+}
+
+// Tabla de actividad reciente
+.recent-activity {
+  overflow-x: auto;
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    padding: $spacing-md;
+    background-color: $color-fondo;
+    color: $color-texto-principal;
+    font-weight: 600;
+    font-size: $font-size-sm;
+    border-bottom: 2px solid $color-border;
+  }
+
+  td {
+    padding: $spacing-md;
+    border-bottom: 1px solid $color-border;
+    font-size: $font-size-sm;
+  }
+
+  tbody tr {
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: $color-fondo;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
