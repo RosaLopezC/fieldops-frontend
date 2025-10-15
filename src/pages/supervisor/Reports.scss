@@ -18,43 +18,58 @@
 .filters-section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: $spacing-md; // ← Reducir gap entre filas
 }
 
 .filters-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: $spacing-md;
+  gap: $spacing-md; // ← Espaciado consistente
   align-items: end;
 
-  @media (max-width: 1024px) {
+  // Ajuste para que el último elemento (botón) ocupe toda la fila en la segunda row
+  &:last-of-type {
+    grid-template-columns: 1fr 1fr 1fr 1fr 180px; // ← Botón más pequeño
+  }
+
+  @media (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
+    
+    &:last-of-type {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    
+    &:last-of-type {
+      grid-template-columns: 1fr;
+    }
   }
 }
 
 .filter-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px; // ← Espaciado entre label e input
 
   label {
     font-size: $font-size-sm;
     font-weight: 600;
     color: $color-texto-principal;
+    margin-bottom: 0; // ← Sin margen extra
   }
 
   select,
   input {
-    padding: 12px;
+    padding: 10px 12px; // ← Padding más compacto
     border: 2px solid $color-border;
     border-radius: $border-radius;
     font-size: $font-size-sm;
     background-color: $color-blanco;
     transition: border-color $transition-speed ease;
+    height: 42px; // ← Altura fija para consistencia
 
     &:focus {
       outline: none;
@@ -63,6 +78,16 @@
 
     &:hover {
       border-color: darken($color-border, 10%);
+    }
+  }
+
+  // ← AGREGAR ESTO para arreglar los iconos de fecha
+  input[type="date"] {
+    padding-right: 12px; // ← Más espacio a la derecha
+    
+    &::-webkit-calendar-picker-indicator {
+      margin-right: 0;
+      padding-right: 0;
     }
   }
 
@@ -76,6 +101,14 @@
   gap: $spacing-sm;
   padding-top: $spacing-md;
   border-top: 1px solid $color-border;
+  margin-top: $spacing-xs; // ← Margen superior reducido
+}
+
+// Separador entre filtros y tabla
+.table-separator {
+  height: 1px;
+  background-color: $color-border;
+  margin: $spacing-lg 0;
 }
 
 // Modal de detalle

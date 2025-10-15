@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'; // ← Agregar useNavigate
 import { 
   FaChartBar, 
   FaFileAlt, 
@@ -10,9 +10,11 @@ import {
 } from 'react-icons/fa';
 import './Sidebar.scss';
 
-const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
-
+// ← AGREGAR collapsed y setCollapsed como props
+const Sidebar = ({ collapsed, setCollapsed }) => {
+  const location = useLocation(); // ← AGREGAR ESTO
+  const navigate = useNavigate(); // ← AGREGAR ESTO
+  
   const menuItems = [
     {
       section: 'ACCIONES',
@@ -43,7 +45,7 @@ const Sidebar = () => {
     }
   ];
 
-  const [openSubMenu, setOpenSubMenu] = useState('reportes');
+  const [openSubMenu, setOpenSubMenu] = React.useState('reportes');
 
   const toggleSubMenu = (id) => {
     setOpenSubMenu(openSubMenu === id ? null : id);
@@ -82,8 +84,20 @@ const Sidebar = () => {
                   {hasSubItems ? (
                     <>
                       <button
-                        className={`sidebar-link ${isOpen ? 'active' : ''}`}
-                        onClick={() => toggleSubMenu(item.id)}
+                        className={`sidebar-link ${
+                          item.subItems?.some(sub => location.pathname === sub.path) 
+                            ? 'active' 
+                            : ''
+                        }`}
+                        onClick={() => {
+                          if (collapsed) {
+                            // Si está colapsado, ir a la ruta por defecto
+                            navigate(item.path);
+                          } else {
+                            // Si está expandido, toggle del submenu
+                            toggleSubMenu(item.id);
+                          }
+                        }}
                       >
                         <Icon className="sidebar-icon" />
                         {!collapsed && (
@@ -105,6 +119,7 @@ const Sidebar = () => {
                               className={({ isActive }) =>
                                 `sidebar-sublink ${isActive ? 'active' : ''}`
                               }
+                              end={subItem.id === 'todos'}
                             >
                               <span className="sidebar-dot"></span>
                               {subItem.label}

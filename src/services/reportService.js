@@ -314,8 +314,11 @@ class ReportService {
       filteredReports = filteredReports.filter(r => r.sector_nombre === filters.sector);
     }
 
+    // ← MODIFICADO ESTA PARTE
     if (filters.tipo) {
-      filteredReports = filteredReports.filter(r => r.tipo.toLowerCase() === filters.tipo.toLowerCase());
+      filteredReports = filteredReports.filter(r => 
+        r.tipo.toLowerCase() === filters.tipo.toLowerCase()
+      );
     }
 
     if (filters.estado) {
@@ -328,7 +331,7 @@ class ReportService {
       );
     }
 
-    console.log('✅ [ReportService] Devolviendo', filteredReports.length, 'reportes MOCK');
+    console.log('✅ [ReportService] Devolviendo', filteredReports.length, 'reportes MOCK (de', mockReports.length, 'totales)');
     
     return filteredReports;
   }

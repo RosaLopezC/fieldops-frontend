@@ -12,6 +12,11 @@
   display: flex;
   flex-direction: column;
   transition: margin-left $transition-speed ease;
+
+  // ← AGREGADO: Cuando el sidebar está colapsado
+  &--expanded {
+    margin-left: $sidebar-collapsed-width;
+  }
 }
 
 .app-content {
@@ -23,6 +28,10 @@
 @media (max-width: 768px) {
   .app-main {
     margin-left: 0;
+
+    &--expanded {
+      margin-left: 0;
+    }
   }
 
   .app-content {

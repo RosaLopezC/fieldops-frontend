@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom'; // ← AGREGADO
 import reportService from '../../services/reportService';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
@@ -11,6 +12,8 @@ import { FaEye, FaDownload, FaFilter, FaFileExcel, FaFileCsv } from 'react-icons
 import './Reports.scss';
 
 const SupervisorReports = () => {
+  const location = useLocation(); // ← AGREGADO
+
   // Estados
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,17 +36,38 @@ const SupervisorReports = () => {
     search: ''
   });
 
-  useEffect(() => {
-    loadReports();
-  }, []);
+  // ← AGREGADO - Determinar el tipo según la ruta
+  const getTipoFromRoute = () => {
+    if (location.pathname.includes('/postes')) {
+      return 'Poste';
+    } else if (location.pathname.includes('/predios')) {
+      return 'Predio';
+    }
+    return ''; // Todos
+  };
 
+  // ← MODIFICADO - useEffect para detectar cambios de ruta
+  useEffect(() => {
+    const tipoFromRoute = getTipoFromRoute();
+    setFilters(prev => ({ ...prev, tipo: tipoFromRoute }));
+    loadReports();
+  }, [location.pathname]); // ← Agregada dependencia de ruta
+
+  // ← MODIFICADO - loadReports con filtro automático por ruta
   const loadReports = async () => {
     try {
       console.log('🔄 [Reports] Cargando reportes...');
       setLoading(true);
-      const data = await reportService.getReports(filters);
+      
+      // Aplicar filtro de tipo según la ruta
+      const tipoFromRoute = getTipoFromRoute();
+      const filterData = { ...filters, tipo: tipoFromRoute };
+      
+      console.log('🔍 [Reports] Filtros aplicados:', filterData);
+      
+      const data = await reportService.getReports(filterData);
       setReports(data);
-      setCurrentPage(1); // Reset a primera página
+      setCurrentPage(1);
     } catch (error) {
       console.error('❌ [Reports] Error:', error);
       alert('Error: ' + error.message);
@@ -155,8 +179,9 @@ const SupervisorReports = () => {
         <h1>Reporte</h1>
       </div>
 
-      {/* Filtros */}
+      {/* Card única con filtros y tabla */}
       <Card>
+        {/* Filtros */}
         <div className="filters-section">
           <div className="filters-row">
             <div className="filter-item">
@@ -193,12 +218,16 @@ const SupervisorReports = () => {
               >
                 <option value="">Seleccione</option>
                 <option value="Z10S11">Z10S11</option>
+                <option value="Z10S12">Z10S12</option>
+                <option value="Z10S13">Z10S13</option>
                 <option value="Z20S11">Z20S11</option>
+                <option value="Z20S12">Z20S12</option>
+                <option value="Z20S13">Z20S13</option>
+                <option value="Z30S11">Z30S11</option>
+                <option value="Z30S12">Z30S12</option>
               </select>
             </div>
-          </div>
 
-          <div className="filters-row">
             <div className="filter-item">
               <label>Tipo de Estado</label>
               <select
@@ -212,35 +241,34 @@ const SupervisorReports = () => {
                 <option value="registrado">Registrado</option>
               </select>
             </div>
+          </div>
 
+          <div className="filters-row">
             <div className="filter-item">
-              <Input
+              <label>Fecha inicio</label>
+              <input
                 type="date"
-                label="Fecha inicio"
                 value={filters.fecha_inicio}
                 onChange={(e) => setFilters({ ...filters, fecha_inicio: e.target.value })}
-                fullWidth
               />
             </div>
 
             <div className="filter-item">
-              <Input
+              <label>Fecha fin</label>
+              <input
                 type="date"
-                label="Fecha fin"
                 value={filters.fecha_fin}
                 onChange={(e) => setFilters({ ...filters, fecha_fin: e.target.value })}
-                fullWidth
               />
             </div>
 
             <div className="filter-item">
-              <Input
+              <label>Buscador</label>
+              <input
                 type="text"
-                label="Buscador"
                 placeholder="Buscar por ID"
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                fullWidth
               />
             </div>
 
@@ -256,7 +284,6 @@ const SupervisorReports = () => {
             </div>
           </div>
 
-          {/* Botones de descarga */}
           <div className="download-buttons">
             <Button 
               variant="primary" 
@@ -276,10 +303,11 @@ const SupervisorReports = () => {
             </Button>
           </div>
         </div>
-      </Card>
 
-      {/* Tabla */}
-      <Card>
+        {/* Separador visual */}
+        <div className="table-separator"></div>
+
+        {/* Tabla */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <p>Cargando reportes...</p>
