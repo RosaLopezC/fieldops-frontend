@@ -14,10 +14,15 @@ import Unauthorized from './pages/auth/Unauthorized';
 // Páginas del Supervisor
 import SupervisorDashboard from './pages/supervisor/Dashboard';
 import SupervisorReports from './pages/supervisor/Reports';
-import Support from './pages/supervisor/Support'; // ← AGREGAR
+import Support from './pages/supervisor/Support';
 
 // Páginas del Admin
-import AdminDashboard from './pages/admin/Dashboard';
+import { 
+  AdminDashboard, 
+  AdminSupervisores, 
+  AdminEncargados,
+  AdminReportes // ← AGREGAR
+} from './pages/admin';
 
 // Páginas del Superadmin
 import SuperadminDashboard from './pages/superadmin/Dashboard';
@@ -124,7 +129,7 @@ const AppRoutes = () => {
           <Route path="reportes" element={<SupervisorReports />} />
           <Route path="reportes/postes" element={<SupervisorReports />} />
           <Route path="reportes/predios" element={<SupervisorReports />} />
-          <Route path="soporte" element={<Support />} /> {/* ← CAMBIAR */}
+          <Route path="soporte" element={<Support />} />
           <Route path="" element={<Navigate to="dashboard" replace />} />
         </Route>
 
@@ -138,6 +143,10 @@ const AppRoutes = () => {
           }
         >
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="usuarios/supervisores" element={<AdminSupervisores />} />
+          <Route path="usuarios/encargados" element={<AdminEncargados />} />
+          <Route path="reportes" element={<AdminReportes />} /> {/* ← CAMBIAR */}
+          <Route path="configuracion" element={<ComingSoonPage role="Configuración" />} />
           <Route path="" element={<Navigate to="dashboard" replace />} />
         </Route>
 

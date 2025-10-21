@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // ← AGREGAR IMPORT
+import { useNavigate } from 'react-router-dom'; // ← Asegúrate que esté importado
 import superadminService from '../../services/superadminService';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -10,7 +10,7 @@ import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import './AdminsLocales.scss';
 
 const AdminsLocales = () => {
-  const navigate = useNavigate(); // ← AGREGAR HOOK
+  const navigate = useNavigate(); // ← Asegúrate que esté declarado
   const [admins, setAdmins] = useState([]);
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,14 +34,6 @@ const AdminsLocales = () => {
     try {
       setLoading(true);
       
-      // Verificar que haya token
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        alert('No hay sesión activa. Por favor inicia sesión nuevamente.');
-        navigate('/login');
-        return;
-      }
-
       const [adminsRes, empresasRes] = await Promise.all([
         superadminService.getAdminsLocales(),
         superadminService.getEmpresas()
@@ -52,11 +44,16 @@ const AdminsLocales = () => {
     } catch (error) {
       console.error('Error al cargar datos:', error);
       
-      // Si es error 401, redirigir al login
-      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-        alert('Tu sesión ha expirado. Por favor inicia sesión nuevamente.');
+      // Si es error 401, redirigir al login automáticamente
+      if (error.message.includes('401')) {
         localStorage.removeItem('accessToken');
-        navigate('/login');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        
+        navigate('/login', { 
+          replace: true,
+          state: { message: 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.' }
+        });
       } else {
         alert('Error al cargar datos: ' + error.message);
       }

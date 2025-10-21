@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import { 
   FaChartBar, 
+  FaChartLine, // ← AGREGAR
   FaFileAlt, 
   FaUsers,
   FaMapMarkedAlt, 
@@ -10,8 +11,8 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaCog,
-  FaBuilding, // ← AGREGAR
-  FaClipboardList // ← AGREGAR
+  FaBuilding,
+  FaClipboardList
 } from 'react-icons/fa';
 import { ROLES } from '../../../config/roles';
 import './Sidebar.scss';
@@ -100,44 +101,41 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
     // ADMIN
     if (user?.rol === ROLES.ADMIN || user?.rol === ROLES.ADMIN_LOCAL) {
+      const adminMenuItems = [
+        {
+          id: 'dashboard',
+          label: 'Dashboard',
+          icon: FaChartLine,
+          path: '/admin/dashboard'
+        },
+        {
+          id: 'usuarios',
+          label: 'Usuarios',
+          icon: FaUsers,
+          path: '/admin/usuarios',
+          subItems: [
+            { id: 'supervisores', label: 'Supervisores', path: '/admin/usuarios/supervisores' },
+            { id: 'encargados', label: 'Encargados', path: '/admin/usuarios/encargados' }
+          ]
+        },
+        {
+          id: 'reportes',
+          label: 'Reportes',
+          icon: FaFileAlt,
+          path: '/admin/reportes'
+        },
+        {
+          id: 'configuracion',
+          label: 'Configuración',
+          icon: FaCog,
+          path: '/admin/configuracion'
+        }
+      ];
+
       return [
         {
           section: 'ACCIONES',
-          items: [
-            {
-              id: 'dashboard',
-              label: 'Dashboard',
-              icon: FaChartBar,
-              path: '/admin/dashboard'
-            },
-            {
-              id: 'usuarios',
-              label: 'Gestión de Usuarios',
-              icon: FaUsers,
-              path: '/admin/usuarios',
-              subItems: [
-                { id: 'supervisores', label: 'Supervisores', path: '/admin/usuarios/supervisores' },
-                { id: 'encargados', label: 'Encargados', path: '/admin/usuarios/encargados' },
-              ]
-            },
-            {
-              id: 'reportes',
-              label: 'Reportes',
-              icon: FaFileAlt,
-              path: '/admin/reportes',
-              subItems: [
-                { id: 'todos', label: 'Todos', path: '/admin/reportes' },
-                { id: 'validacion', label: 'Validación', path: '/admin/reportes/validacion' },
-                { id: 'historial', label: 'Historial', path: '/admin/reportes/historial' },
-              ]
-            },
-            {
-              id: 'configuracion',
-              label: 'Configuración',
-              icon: FaCog,
-              path: '/admin/configuracion'
-            }
-          ]
+          items: adminMenuItems
         }
       ];
     }

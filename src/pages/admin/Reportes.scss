@@ -1,0 +1,95 @@
+@import '../../styles/variables.scss';
+
+.admin-reportes-page {
+  max-width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+    align-items: stretch;
+  }
+}
+
+.filters-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-md;
+  align-items: end;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  &.filter-button {
+    justify-content: flex-end;
+    padding-top: $spacing-sm;
+  }
+}
+
+.filter-label {
+  display: block;
+  color: $color-texto-principal;
+  font-weight: 500;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.select-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background-color: $color-blanco;
+  transition: border-color $transition-speed ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+  }
+}
+
+.reportes-count {
+  margin-bottom: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background-color: $color-fondo;
+  border-radius: $border-radius;
+
+  p {
+    margin: 0;
+    color: $color-texto-secundario;
+    font-size: $font-size-sm;
+
+    strong {
+      color: $color-azul;
+      font-weight: 600;
+    }
+  }
+}

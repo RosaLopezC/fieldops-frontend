@@ -136,6 +136,24 @@ const mockLogs = [
   }
 ];
 
+// Helper para verificar respuesta y manejar errores
+const handleResponse = async (response) => {
+  if (response.status === 401) {
+    throw new Error('401: No autorizado - Token inválido o expirado');
+  }
+  
+  if (response.status === 403) {
+    throw new Error('403: No tienes permisos para esta acción');
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+  }
+
+  return response;
+};
+
 const superadminService = {
   // Empresas
   getEmpresas: () => {
@@ -182,6 +200,11 @@ const superadminService = {
   getAdminsLocales: async () => {
     try {
       const token = localStorage.getItem('accessToken');
+      
+      if (!token) {
+        throw new Error('401: No hay token de autenticación');
+      }
+
       const response = await fetch('http://31.97.91.123/api/usuarios/', {
         method: 'GET',
         headers: {
@@ -190,9 +213,7 @@ const superadminService = {
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Error al obtener usuarios');
-      }
+      await handleResponse(response); // ← Usar helper
 
       const data = await response.json();
       
