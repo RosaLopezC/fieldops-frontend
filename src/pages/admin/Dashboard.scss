@@ -1,0 +1,129 @@
+@import '../../styles/variables.scss';
+
+.admin-dashboard {
+  max-width: 100%;
+}
+
+.dashboard-header {
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+}
+
+// Grid de métricas
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Grid de gráficos
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  &.donut-card {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.chart-container {
+  padding: $spacing-md 0;
+}
+
+// Tooltip personalizado
+.custom-tooltip {
+  background: white;
+  border: 1px solid $color-border;
+  padding: 12px 16px;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow-md;
+
+  .tooltip-label {
+    font-weight: 600;
+    color: $color-texto-principal;
+    margin-bottom: 4px;
+  }
+
+  .tooltip-value {
+    color: $color-texto-secundario;
+    font-size: $font-size-sm;
+  }
+}
+
+// Contenedor del gráfico de dona
+.donut-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.donut-info {
+  text-align: center;
+  margin-top: $spacing-md;
+}
+
+.donut-total {
+  font-size: 32px;
+  font-weight: 700;
+  color: $color-texto-principal;
+  line-height: 1;
+}
+
+.donut-subtitle {
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+  margin: $spacing-xs 0 $spacing-md 0;
+}
+
+.donut-legend {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+  font-weight: 500;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}

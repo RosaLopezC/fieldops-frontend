@@ -1,0 +1,275 @@
+@import '../../styles/variables.scss';
+
+.support-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0; // ← CAMBIAR de $spacing-lg a 0
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xl;
+  padding: 0 $spacing-lg;
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    justify-content: flex-start; // ← AGREGAR ESTO
+  }
+
+  .header-icon {
+    font-size: 40px;
+    color: $color-azul;
+  }
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+    align-items: stretch;
+
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+// Grid de tickets
+.tickets-grid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  width: 100%;
+  padding: 0 $spacing-lg; // ← AGREGAR ESTO
+}
+
+.ticket-card {
+  transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow-lg;
+  }
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid $color-border;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+.ticket-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticket-id {
+  font-weight: 600;
+  color: $color-azul;
+  font-size: $font-size-base;
+}
+
+.ticket-fecha {
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+}
+
+.ticket-badges {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    align-self: flex-start;
+  }
+}
+
+.ticket-body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.ticket-categoria {
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+
+  strong {
+    color: $color-texto-principal;
+  }
+}
+
+.ticket-asunto {
+  font-size: 18px;
+  font-weight: 600;
+  color: $color-texto-principal;
+  margin: 0;
+  line-height: 1.4;
+  word-wrap: break-word; // ← AGREGAR
+  overflow-wrap: break-word; // ← AGREGAR
+}
+
+.ticket-descripcion {
+  color: $color-texto-secundario;
+  line-height: 1.6;
+  margin: 0;
+  word-wrap: break-word; // ← AGREGAR
+  overflow-wrap: break-word; // ← AGREGAR
+}
+
+.ticket-respuesta {
+  background-color: $color-fondo;
+  padding: $spacing-md;
+  border-radius: $border-radius;
+  border-left: 3px solid $color-success;
+
+  strong {
+    display: block;
+    color: $color-success;
+    margin-bottom: $spacing-xs;
+    font-size: $font-size-sm;
+  }
+
+  p {
+    margin: 0;
+    color: $color-texto-principal;
+    line-height: 1.5;
+  }
+}
+
+// Estado vacío
+.empty-state {
+  text-align: center;
+  padding: $spacing-xl * 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-lg;
+
+  .empty-icon {
+    font-size: 64px;
+    color: $color-border;
+  }
+
+  h3 {
+    color: $color-texto-principal;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+  }
+}
+
+// Formulario del modal
+.support-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.input-label {
+  display: block;
+  color: $color-texto-principal;
+  font-weight: 500;
+  font-size: $font-size-sm;
+}
+
+.select-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background-color: $color-blanco;
+  transition: border-color $transition-speed ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+  }
+
+  &:disabled {
+    background-color: $color-fondo;
+    cursor: not-allowed;
+  }
+}
+
+.textarea-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color $transition-speed ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+  }
+
+  &::placeholder {
+    color: $color-texto-secundario;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    h1 {
+      font-size: 24px;
+    }
+
+    .header-icon {
+      font-size: 32px;
+    }
+  }
+
+  .ticket-asunto {
+    font-size: 16px;
+  }
+}

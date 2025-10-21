@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
-import { FaBell, FaChevronDown, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import NotificationDropdown from '../../common/NotificationDropdown';
+import { FaChevronDown, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import './Header.scss';
 
-const Header = ({ collapsed }) => { // ← AGREGAR collapsed como prop
+const Header = ({ collapsed }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -20,17 +21,25 @@ const Header = ({ collapsed }) => { // ← AGREGAR collapsed como prop
     return `${firstInitial}${lastInitial}`.toUpperCase();
   };
 
+  // Mapear rol del usuario para las notificaciones
+  const getNotificationRole = () => {
+    if (user?.rol === 'supervisor') return 'supervisor';
+    if (user?.rol === 'encargado') return 'encargado';
+    return null;
+  };
+
+  const notificationRole = getNotificationRole();
+
   return (
     <header className={`app-header ${collapsed ? 'app-header--expanded' : ''}`}>
-      {/* ↑ AGREGAR la clase condicional */}
       <div className="header-content">
         <div className="header-left"></div>
 
         <div className="header-right">
-          <button className="header-icon-btn">
-            <FaBell />
-            <span className="notification-badge">3</span>
-          </button>
+          {/* Notificaciones - solo para supervisor y encargado */}
+          {notificationRole && (
+            <NotificationDropdown role={notificationRole} />
+          )}
 
           <div className="user-menu">
             <button 
@@ -41,7 +50,7 @@ const Header = ({ collapsed }) => { // ← AGREGAR collapsed como prop
                 {getInitials(user?.nombres, user?.apellidos)}
               </div>
               <div className="user-info">
-                <span className="user-name">Userprueba</span>
+                <span className="user-name">{user?.nombres || 'Usuario'}</span>
                 <span className="user-dni">DNI: {user?.dni}</span>
               </div>
               <FaChevronDown className="dropdown-icon" />

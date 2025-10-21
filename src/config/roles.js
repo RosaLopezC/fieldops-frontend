@@ -18,10 +18,10 @@ export const ROLE_NAMES = {
 
 // Rutas por defecto según rol (después de login)
 export const ROLE_DEFAULT_ROUTES = {
-  [ROLES.SUPERADMIN]: '/superadmin',
-  [ROLES.ADMIN]: '/admin',
-  [ROLES.ADMIN_LOCAL]: '/admin',
-  [ROLES.SUPERVISOR]: '/supervisor/dashboard', // ← CAMBIAR de /supervisor/reportes a /supervisor/dashboard
+  [ROLES.SUPERADMIN]: '/superadmin/dashboard', // ← Verificar
+  [ROLES.ADMIN]: '/admin/dashboard',
+  [ROLES.ADMIN_LOCAL]: '/admin/dashboard',
+  [ROLES.SUPERVISOR]: '/supervisor/dashboard',
   [ROLES.ENCARGADO]: '/encargado',
 };
 

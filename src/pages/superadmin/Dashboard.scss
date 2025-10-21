@@ -1,0 +1,121 @@
+@import '../../styles/variables.scss';
+
+.superadmin-dashboard {
+  max-width: 100%;
+}
+
+.dashboard-header {
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+}
+
+// Grid de métricas
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Tabla de empresas
+.empresas-table-container {
+  overflow-x: auto;
+}
+
+.empresas-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    background-color: $color-fondo;
+    color: $color-texto-principal;
+    font-weight: 600;
+    text-align: left;
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-size-sm;
+    border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  td {
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid $color-border;
+    font-size: $font-size-sm;
+    vertical-align: middle;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  tbody tr {
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: $color-fondo;
+    }
+  }
+}
+
+.empresa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: $color-texto-principal;
+    font-weight: 600;
+  }
+}
+
+.empresa-email {
+  color: $color-texto-secundario;
+  font-size: 12px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .empresas-table {
+    font-size: 12px;
+
+    th,
+    td {
+      padding: $spacing-sm;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

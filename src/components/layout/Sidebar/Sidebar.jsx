@@ -1,57 +1,151 @@
-import React from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'; // ← Agregar useNavigate
+import React, { useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import useAuth from '../../../hooks/useAuth';
 import { 
   FaChartBar, 
   FaFileAlt, 
+  FaUsers,
   FaMapMarkedAlt, 
   FaHeadset,
   FaChevronLeft,
-  FaChevronRight 
+  FaChevronRight,
+  FaCog,
+  FaBuilding, // ← AGREGAR
+  FaClipboardList // ← AGREGAR
 } from 'react-icons/fa';
+import { ROLES } from '../../../config/roles';
 import './Sidebar.scss';
 
-// ← AGREGAR collapsed y setCollapsed como props
 const Sidebar = ({ collapsed, setCollapsed }) => {
-  const location = useLocation(); // ← AGREGAR ESTO
-  const navigate = useNavigate(); // ← AGREGAR ESTO
-  
-  const menuItems = [
-    {
-      section: 'ACCIONES',
-      items: [
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [openSubMenu, setOpenSubMenu] = useState('reportes');
+
+  // Menús según rol
+  const getMenuItems = () => {
+    // SUPERADMIN
+    if (user?.rol === ROLES.SUPERADMIN) {
+      return [
         {
-          id: 'dashboard',
-          label: 'Dashboard',
-          icon: FaChartBar,
-          path: '/supervisor/dashboard'
-        },
-        {
-          id: 'reportes',
-          label: 'Reportes',
-          icon: FaFileAlt,
-          path: '/supervisor/reportes',
-          subItems: [
-            { id: 'todos', label: 'Todos', path: '/supervisor/reportes' },
-            { id: 'postes', label: 'Postes', path: '/supervisor/reportes/postes' },
-            { id: 'predios', label: 'Predios', path: '/supervisor/reportes/predios' },
+          section: 'ADMINISTRACIÓN',
+          items: [
+            {
+              id: 'dashboard',
+              label: 'Dashboard',
+              icon: FaChartBar,
+              path: '/superadmin/dashboard'
+            },
+            {
+              id: 'empresas',
+              label: 'Empresas',
+              icon: FaBuilding,
+              path: '/superadmin/empresas'
+            },
+            {
+              id: 'admins',
+              label: 'Admins Locales',
+              icon: FaUsers,
+              path: '/superadmin/admins'
+            },
+            {
+              id: 'logs',
+              label: 'Logs de Auditoría',
+              icon: FaClipboardList,
+              path: '/superadmin/logs'
+            }
           ]
         }
-      ]
-    },
-    {
-      section: 'SOPORTE',
-      items: [
-        {
-          id: 'soporte',
-          label: 'Soporte',
-          icon: FaHeadset,
-          path: '/supervisor/soporte'
-        }
-      ]
+      ];
     }
-  ];
 
-  const [openSubMenu, setOpenSubMenu] = React.useState('reportes');
+    // SUPERVISOR
+    if (user?.rol === ROLES.SUPERVISOR) {
+      return [
+        {
+          section: 'ACCIONES',
+          items: [
+            {
+              id: 'dashboard',
+              label: 'Dashboard',
+              icon: FaChartBar,
+              path: '/supervisor/dashboard'
+            },
+            {
+              id: 'reportes',
+              label: 'Reportes',
+              icon: FaFileAlt,
+              path: '/supervisor/reportes',
+              subItems: [
+                { id: 'todos', label: 'Todos', path: '/supervisor/reportes' },
+                { id: 'postes', label: 'Postes', path: '/supervisor/reportes/postes' },
+                { id: 'predios', label: 'Predios', path: '/supervisor/reportes/predios' },
+              ]
+            }
+          ]
+        },
+        {
+          section: 'SOPORTE',
+          items: [
+            {
+              id: 'soporte',
+              label: 'Soporte',
+              icon: FaHeadset,
+              path: '/supervisor/soporte'
+            }
+          ]
+        }
+      ];
+    }
+
+    // ADMIN
+    if (user?.rol === ROLES.ADMIN || user?.rol === ROLES.ADMIN_LOCAL) {
+      return [
+        {
+          section: 'ACCIONES',
+          items: [
+            {
+              id: 'dashboard',
+              label: 'Dashboard',
+              icon: FaChartBar,
+              path: '/admin/dashboard'
+            },
+            {
+              id: 'usuarios',
+              label: 'Gestión de Usuarios',
+              icon: FaUsers,
+              path: '/admin/usuarios',
+              subItems: [
+                { id: 'supervisores', label: 'Supervisores', path: '/admin/usuarios/supervisores' },
+                { id: 'encargados', label: 'Encargados', path: '/admin/usuarios/encargados' },
+              ]
+            },
+            {
+              id: 'reportes',
+              label: 'Reportes',
+              icon: FaFileAlt,
+              path: '/admin/reportes',
+              subItems: [
+                { id: 'todos', label: 'Todos', path: '/admin/reportes' },
+                { id: 'validacion', label: 'Validación', path: '/admin/reportes/validacion' },
+                { id: 'historial', label: 'Historial', path: '/admin/reportes/historial' },
+              ]
+            },
+            {
+              id: 'configuracion',
+              label: 'Configuración',
+              icon: FaCog,
+              path: '/admin/configuracion'
+            }
+          ]
+        }
+      ];
+    }
+
+    return [];
+  };
+
+  const menuItems = getMenuItems();
 
   const toggleSubMenu = (id) => {
     setOpenSubMenu(openSubMenu === id ? null : id);
@@ -97,10 +191,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                         }`}
                         onClick={() => {
                           if (collapsed) {
-                            // Si está colapsado, ir a la ruta por defecto
                             navigate(item.path);
                           } else {
-                            // Si está expandido, toggle del submenu
                             toggleSubMenu(item.id);
                           }
                         }}
@@ -153,15 +245,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           </div>
         ))}
       </nav>
-
-      {/* Footer con botón de cerrar sesión */}
-      {!collapsed && (
-        <div className="sidebar-footer">
-          <button className="sidebar-logout">
-            Cerrar sesión
-          </button>
-        </div>
-      )}
     </aside>
   );
 };

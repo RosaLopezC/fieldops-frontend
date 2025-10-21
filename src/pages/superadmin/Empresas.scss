@@ -1,0 +1,167 @@
+@import '../../styles/variables.scss';
+
+.empresas-page {
+  max-width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.empresas-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    background-color: $color-fondo;
+    color: $color-texto-principal;
+    font-weight: 600;
+    text-align: left;
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-size-sm;
+    border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  td {
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid $color-border;
+    font-size: $font-size-sm;
+    vertical-align: middle;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  tbody tr {
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: $color-fondo;
+    }
+  }
+}
+
+.empresa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: $color-texto-principal;
+    font-weight: 600;
+  }
+}
+
+.empresa-direccion {
+  color: $color-texto-secundario;
+  font-size: 12px;
+}
+
+.contacto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  span {
+    font-size: $font-size-sm;
+    color: $color-texto-principal;
+  }
+
+  .telefono {
+    color: $color-texto-secundario;
+    font-size: 12px;
+  }
+}
+
+.metric-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: $color-fondo;
+  border-radius: $border-radius;
+  font-weight: 600;
+  color: $color-azul;
+}
+
+.action-buttons {
+  display: flex;
+  gap: $spacing-sm;
+  justify-content: center;
+  align-items: center;
+}
+
+// Formulario del modal
+.empresa-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+@media (max-width: 768px) {
+  .empresas-table {
+    font-size: 12px;
+
+    th,
+    td {
+      padding: $spacing-sm;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

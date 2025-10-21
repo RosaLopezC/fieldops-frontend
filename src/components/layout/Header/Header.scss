@@ -33,7 +33,7 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: $spacing-md; // ← Asegúrate que tenga gap para separar notificaciones del avatar
 }
 
 .header-icon-btn {

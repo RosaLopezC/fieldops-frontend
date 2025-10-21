@@ -14,6 +14,16 @@ import Unauthorized from './pages/auth/Unauthorized';
 // Páginas del Supervisor
 import SupervisorDashboard from './pages/supervisor/Dashboard';
 import SupervisorReports from './pages/supervisor/Reports';
+import Support from './pages/supervisor/Support'; // ← AGREGAR
+
+// Páginas del Admin
+import AdminDashboard from './pages/admin/Dashboard';
+
+// Páginas del Superadmin
+import SuperadminDashboard from './pages/superadmin/Dashboard';
+import Empresas from './pages/superadmin/Empresas';
+import AdminsLocales from './pages/superadmin/AdminsLocales';
+import Logs from './pages/superadmin/Logs';
 
 // Componente temporal para roles sin desarrollar
 const ComingSoonPage = ({ role }) => {
@@ -114,29 +124,39 @@ const AppRoutes = () => {
           <Route path="reportes" element={<SupervisorReports />} />
           <Route path="reportes/postes" element={<SupervisorReports />} />
           <Route path="reportes/predios" element={<SupervisorReports />} />
-          <Route path="soporte" element={<ComingSoonPage role="Soporte" />} />
-          <Route path="" element={<Navigate to="dashboard" replace />} /> {/* ← CAMBIAR de reportes a dashboard */}
+          <Route path="soporte" element={<Support />} /> {/* ← CAMBIAR */}
+          <Route path="" element={<Navigate to="dashboard" replace />} />
         </Route>
 
-        {/* Rutas del ADMIN */}
+        {/* Rutas del ADMIN con Layout */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.ADMIN_LOCAL]}>
-              <ComingSoonPage role="Administrador Local" />
+              <Layout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="" element={<Navigate to="dashboard" replace />} />
+        </Route>
 
-        {/* Rutas del SUPERADMIN */}
+        {/* Rutas del SUPERADMIN con Layout */}
         <Route
           path="/superadmin"
           element={
             <ProtectedRoute allowedRoles={[ROLES.SUPERADMIN]}>
-              <ComingSoonPage role="Superadministrador" />
+              <Layout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="dashboard" element={<SuperadminDashboard />} />
+          <Route path="empresas" element={<Empresas />} />
+          <Route path="empresas/:id" element={<ComingSoonPage role="Detalle Empresa" />} />
+          <Route path="admins" element={<AdminsLocales />} />
+          <Route path="logs" element={<Logs />} />
+          <Route path="" element={<Navigate to="dashboard" replace />} />
+        </Route>
 
         {/* Rutas del ENCARGADO */}
         <Route

@@ -1,0 +1,140 @@
+@import '../../styles/variables.scss';
+
+.logs-page {
+  max-width: 100%;
+}
+
+.page-header {
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    color: $color-texto-secundario;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+}
+
+.filters-section {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  flex: 1;
+  max-width: 250px;
+
+  label {
+    color: $color-texto-principal;
+    font-weight: 500;
+    font-size: $font-size-sm;
+  }
+}
+
+.select-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background-color: $color-blanco;
+  transition: border-color $transition-speed ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    background-color: $color-fondo;
+    color: $color-texto-principal;
+    font-weight: 600;
+    text-align: left;
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-size-sm;
+    border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid $color-border;
+    font-size: $font-size-sm;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: $color-fondo;
+    }
+  }
+}
+
+.log-fecha {
+  color: $color-texto-secundario;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.log-usuario {
+  color: $color-azul;
+  font-weight: 500;
+}
+
+.log-accion {
+  color: $color-texto-principal;
+  font-weight: 600;
+}
+
+.log-detalle {
+  color: $color-texto-secundario;
+  max-width: 400px;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .filters-section {
+    flex-direction: column;
+  }
+
+  .filter-item {
+    max-width: 100%;
+  }
+
+  .logs-table {
+    font-size: 12px;
+
+    th,
+    td {
+      padding: $spacing-sm;
+    }
+  }
+
+  .log-detalle {
+    max-width: 200px;
+  }
+}
