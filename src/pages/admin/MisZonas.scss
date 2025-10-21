@@ -1,0 +1,119 @@
+@import '../../styles/variables.scss';
+
+.mis-zonas-page {
+  max-width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $color-azul;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+    align-items: stretch;
+  }
+}
+
+/* NUEVO BLOQUE DE FILTROS */
+.filters-section {
+  padding: 0;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 0.8fr 1fr;
+  gap: $spacing-md;
+  align-items: end;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr 1fr;
+
+    .filter-search {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    .filter-search {
+      grid-column: auto;
+    }
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  button {
+    height: 42px;
+    margin-top: 26px; // Alinear con los inputs que tienen label
+  }
+}
+
+.filter-search {
+  // Campo de búsqueda ocupa más espacio
+}
+
+/* --- RESTO DEL ARCHIVO --- */
+
+.filter-label {
+  display: block;
+  color: $color-texto-principal;
+  font-weight: 500;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.select-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background-color: $color-blanco;
+  transition: border-color $transition-speed ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: $spacing-xs;
+  justify-content: center;
+  align-items: center;
+}
+
+.zona-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}

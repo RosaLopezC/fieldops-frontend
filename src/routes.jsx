@@ -21,7 +21,11 @@ import {
   AdminDashboard, 
   AdminSupervisores, 
   AdminEncargados,
-  AdminReportes // ← AGREGAR
+  AdminReportes,
+  MisDistritos,
+  MisZonas,
+  MisSectores,
+  MapaInteractivo // ← AGREGAR
 } from './pages/admin';
 
 // Páginas del Superadmin
@@ -145,7 +149,11 @@ const AppRoutes = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="usuarios/supervisores" element={<AdminSupervisores />} />
           <Route path="usuarios/encargados" element={<AdminEncargados />} />
-          <Route path="reportes" element={<AdminReportes />} /> {/* ← CAMBIAR */}
+          <Route path="territorial/distritos" element={<MisDistritos />} />
+          <Route path="territorial/zonas" element={<MisZonas />} />
+          <Route path="territorial/sectores" element={<MisSectores />} />
+          <Route path="territorial/mapa" element={<MapaInteractivo />} /> {/* ← CAMBIAR */}
+          <Route path="reportes" element={<AdminReportes />} />
           <Route path="configuracion" element={<ComingSoonPage role="Configuración" />} />
           <Route path="" element={<Navigate to="dashboard" replace />} />
         </Route>

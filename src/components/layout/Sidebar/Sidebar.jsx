@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import { 
-  FaChartBar, 
-  FaChartLine, // ← AGREGAR
+  FaChartLine, 
+  FaUsers, 
   FaFileAlt, 
-  FaUsers,
+  FaCog,
   FaMapMarkedAlt, 
-  FaHeadset,
   FaChevronLeft,
   FaChevronRight,
-  FaCog,
+  FaChevronDown,
+  FaChartBar,
+  FaHeadset,
   FaBuilding,
   FaClipboardList
 } from 'react-icons/fa';
@@ -22,6 +23,61 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [openSubMenu, setOpenSubMenu] = useState('reportes');
+
+  // Nuevo menú para ADMIN
+  const adminMenuItems = [
+    {
+      label: 'Dashboard',
+      icon: <FaChartLine />,
+      path: '/admin/dashboard'
+    },
+    {
+      label: 'Usuarios',
+      icon: <FaUsers />,
+      children: [
+        {
+          label: 'Supervisores',
+          path: '/admin/usuarios/supervisores'
+        },
+        {
+          label: 'Encargados',
+          path: '/admin/usuarios/encargados'
+        }
+      ]
+    },
+    {
+      label: 'Gestión Territorial',
+      icon: <FaMapMarkedAlt />,
+      children: [
+        {
+          label: 'Mis Distritos',
+          path: '/admin/territorial/distritos'
+        },
+        {
+          label: 'Mis Zonas',
+          path: '/admin/territorial/zonas'
+        },
+        {
+          label: 'Mis Sectores',
+          path: '/admin/territorial/sectores'
+        },
+        {
+          label: 'Mapa Interactivo',
+          path: '/admin/territorial/mapa'
+        }
+      ]
+    },
+    {
+      label: 'Reportes',
+      icon: <FaFileAlt />,
+      path: '/admin/reportes'
+    },
+    {
+      label: 'Configuración',
+      icon: <FaCog />,
+      path: '/admin/configuracion'
+    }
+  ];
 
   // Menús según rol
   const getMenuItems = () => {
@@ -101,41 +157,30 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
     // ADMIN
     if (user?.rol === ROLES.ADMIN || user?.rol === ROLES.ADMIN_LOCAL) {
-      const adminMenuItems = [
-        {
-          id: 'dashboard',
-          label: 'Dashboard',
-          icon: FaChartLine,
-          path: '/admin/dashboard'
-        },
-        {
-          id: 'usuarios',
-          label: 'Usuarios',
-          icon: FaUsers,
-          path: '/admin/usuarios',
-          subItems: [
-            { id: 'supervisores', label: 'Supervisores', path: '/admin/usuarios/supervisores' },
-            { id: 'encargados', label: 'Encargados', path: '/admin/usuarios/encargados' }
-          ]
-        },
-        {
-          id: 'reportes',
-          label: 'Reportes',
-          icon: FaFileAlt,
-          path: '/admin/reportes'
-        },
-        {
-          id: 'configuracion',
-          label: 'Configuración',
-          icon: FaCog,
-          path: '/admin/configuracion'
-        }
-      ];
-
+      // Adaptar el renderizado para el nuevo formato adminMenuItems
       return [
         {
           section: 'ACCIONES',
-          items: adminMenuItems
+          items: adminMenuItems.map((item, idx) => {
+            if (item.children) {
+              return {
+                id: item.label.toLowerCase().replace(/\s/g, '-'),
+                label: item.label,
+                icon: () => item.icon,
+                subItems: item.children.map((child, cidx) => ({
+                  id: child.label.toLowerCase().replace(/\s/g, '-'),
+                  label: child.label,
+                  path: child.path
+                }))
+              };
+            }
+            return {
+              id: item.label.toLowerCase().replace(/\s/g, '-'),
+              label: item.label,
+              icon: () => item.icon,
+              path: item.path
+            };
+          })
         }
       ];
     }
@@ -173,7 +218,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             )}
 
             {section.items.map((item) => {
-              const Icon = item.icon;
+              const Icon = typeof item.icon === 'function' ? item.icon : () => null;
               const hasSubItems = item.subItems && item.subItems.length > 0;
               const isOpen = openSubMenu === item.id;
 
@@ -189,7 +234,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                         }`}
                         onClick={() => {
                           if (collapsed) {
-                            navigate(item.path);
+                            navigate(item.subItems[0].path);
                           } else {
                             toggleSubMenu(item.id);
                           }
@@ -215,7 +260,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                               className={({ isActive }) =>
                                 `sidebar-sublink ${isActive ? 'active' : ''}`
                               }
-                              end={subItem.id === 'todos'}
                             >
                               <span className="sidebar-dot"></span>
                               {subItem.label}
