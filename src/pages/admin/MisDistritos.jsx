@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import territorialService from '../../services/territorialService';
+import { exportToExcel, exportToPDF, showExportModal } from '../../utils/exportUtils'; // ← AGREGAR
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
@@ -51,8 +52,49 @@ const MisDistritos = () => {
     loadDistritos();
   };
 
-  const handleDownload = () => {
-    alert('Funcionalidad de descarga en desarrollo');
+  const handleDownload = async () => {
+    try {
+      // Preparar datos para exportación
+      const dataToExport = distritos.map(distrito => ({
+        'ID': distrito.id,
+        'Nombre': distrito.nombre,
+        'Zonas': `${distrito.zonas} zonas`,
+        'Sectores': `${distrito.sectores} sectores`,
+        'Supervisores': distrito.supervisores || 0,
+        'Encargados': distrito.encargados || 0,
+        'Estado': distrito.estado === 'activo' ? 'Activo' : 'Inactivo'
+      }));
+
+      if (dataToExport.length === 0) {
+        alert('⚠️ No hay datos para exportar');
+        return;
+      }
+
+      // Mostrar opciones de exportación
+      await showExportModal(
+        // Opción Excel
+        () => {
+          try {
+            exportToExcel(dataToExport, 'Distritos_FieldOps');
+            alert('✅ Archivo Excel descargado exitosamente');
+          } catch (error) {
+            alert('❌ Error al exportar a Excel: ' + error.message);
+          }
+        },
+        // Opción PDF
+        () => {
+          try {
+            exportToPDF(dataToExport, 'Distritos_FieldOps');
+            alert('✅ Abriendo vista previa de impresión para PDF');
+          } catch (error) {
+            alert('❌ Error al exportar a PDF: ' + error.message);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error en exportación:', error);
+      alert('Error al exportar: ' + error.message);
+    }
   };
 
   const handleOpenModal = (distrito = null) => {

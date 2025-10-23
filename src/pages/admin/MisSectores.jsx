@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import territorialService from '../../services/territorialService';
+import { exportToExcel, exportToPDF, showExportModal } from '../../utils/exportUtils';
 import adminService from '../../services/adminService';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -73,8 +74,44 @@ const MisSectores = () => {
     loadSectores();
   };
 
-  const handleDownload = () => {
-    alert('Funcionalidad de descarga en desarrollo');
+  const handleDownload = async () => {
+    try {
+      const dataToExport = sectores.map(sector => ({
+        'ID': sector.id,
+        'Distrito': sector.distrito,
+        'Zona': sector.zona,
+        'Supervisor': sector.supervisor_asignado,
+        'Encargados': `${sector.encargados} encargados`,
+        'Estado': sector.estado === 'activo' ? 'Activo' : 'Inactivo'
+      }));
+
+      if (dataToExport.length === 0) {
+        alert('⚠️ No hay datos para exportar');
+        return;
+      }
+
+      await showExportModal(
+        () => {
+          try {
+            exportToExcel(dataToExport, 'Sectores_FieldOps');
+            alert('✅ Archivo Excel descargado exitosamente');
+          } catch (error) {
+            alert('❌ Error al exportar a Excel: ' + error.message);
+          }
+        },
+        () => {
+          try {
+            exportToPDF(dataToExport, 'Sectores_FieldOps');
+            alert('✅ Abriendo vista previa de impresión para PDF');
+          } catch (error) {
+            alert('❌ Error al exportar a PDF: ' + error.message);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error en exportación:', error);
+      alert('Error al exportar: ' + error.message);
+    }
   };
 
   const handleOpenModal = (sector = null) => {

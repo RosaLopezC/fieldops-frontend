@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polygon, Marker, Popup, useMap } from 'react-leaflet';
+import { exportToExcel, exportToPDF, showExportModal } from '../../utils/exportUtils';
 import mapService from '../../services/mapService';
-import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
 import { 
   FaDrawPolygon, 
   FaEdit, 
@@ -98,30 +97,47 @@ const MapaInteractivo = () => {
     try {
       setLoading(true);
       
-      // Simular exportación de datos
-      const dataToExport = {
-        polygons: polygons,
-        statistics: statistics,
-        exportDate: new Date().toISOString(),
-        totalItems: polygons.length
-      };
-      
-      // Crear archivo JSON y descargarlo
-      const dataStr = JSON.stringify(dataToExport, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `fieldops-map-export-${new Date().getTime()}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      alert('✅ Datos exportados exitosamente\n\n📁 Archivo: fieldops-map-export.json');
+      // Preparar datos para exportación
+      const dataToExport = polygons.map(polygon => ({
+        'ID': polygon.id,
+        'Nombre': polygon.name,
+        'Tipo': polygon.type,
+        'Distrito': polygon.distrito || '-',
+        'Zona': polygon.zona || '-',
+        'Zonas': polygon.zonas || 0,
+        'Sectores': polygon.sectores || 0,
+        'Personal': polygon.personal || 0,
+        'Coordenadas': `${polygon.coordinates.length} puntos`,
+        'Color': polygon.color
+      }));
+
+      if (dataToExport.length === 0) {
+        alert('⚠️ No hay polígonos para exportar');
+        setLoading(false);
+        return;
+      }
+
+      await showExportModal(
+        () => {
+          try {
+            exportToExcel(dataToExport, 'Mapa_Territorial_FieldOps');
+            alert('✅ Datos del mapa exportados a Excel exitosamente');
+          } catch (error) {
+            alert('❌ Error al exportar a Excel: ' + error.message);
+          }
+        },
+        () => {
+          try {
+            exportToPDF(dataToExport, 'Mapa_Territorial_FieldOps');
+            alert('✅ Abriendo vista previa de impresión para PDF');
+          } catch (error) {
+            alert('❌ Error al exportar a PDF: ' + error.message);
+          }
+        }
+      );
     } catch (error) {
       console.error('Error al exportar:', error);
-      alert('Error al exportar datos: ' + error.message);
+      alert('❌ Error al exportar datos: ' + error.message);
     } finally {
       setLoading(false);
     }
