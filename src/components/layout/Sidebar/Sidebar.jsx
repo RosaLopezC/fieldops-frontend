@@ -13,7 +13,8 @@ import {
   FaChartBar,
   FaHeadset,
   FaBuilding,
-  FaClipboardList
+  FaClipboardList,
+  FaUserShield
 } from 'react-icons/fa';
 import { ROLES } from '../../../config/roles';
 import './Sidebar.scss';
@@ -100,10 +101,10 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
               path: '/superadmin/empresas'
             },
             {
-              id: 'admins',
+              id: 'admins-locales',
               label: 'Admins Locales',
-              icon: FaUsers,
-              path: '/superadmin/admins'
+              icon: FaUserShield,
+              path: '/superadmin/admins-locales' // ← Verifica que la ruta sea correcta
             },
             {
               id: 'logs',

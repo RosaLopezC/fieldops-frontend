@@ -171,6 +171,7 @@ const AppRoutes = () => {
           <Route path="empresas" element={<Empresas />} />
           <Route path="empresas/:id" element={<ComingSoonPage role="Detalle Empresa" />} />
           <Route path="admins" element={<AdminsLocales />} />
+          <Route path="admins-locales" element={<AdminsLocales />} /> {/* ← AGREGADO */}
           <Route path="logs" element={<Logs />} />
           <Route path="" element={<Navigate to="dashboard" replace />} />
         </Route>

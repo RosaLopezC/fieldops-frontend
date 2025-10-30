@@ -363,179 +363,131 @@ const superadminService = {
   },
 
   // Admins locales (usando API real)
-  getAdminsLocales: async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      
-      if (!token) {
-        throw new Error('401: No hay token de autenticación');
-      }
-
-      const response = await fetch('http://31.97.91.123/api/usuarios/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      await handleResponse(response); // ← Usar helper
-
-      const data = await response.json();
-      
-      // Filtrar solo usuarios con rol admin o admin_local
-      const admins = data.filter(user => 
-        user.rol === 'ADMIN' || user.rol === 'ADMIN_LOCAL'
-      );
-
-      // Transformar al formato esperado por el frontend
-      const transformedAdmins = admins.map(admin => ({
-        id: admin.id,
-        dni: admin.dni,
-        nombres: admin.first_name || admin.nombres,
-        apellidos: admin.last_name || admin.apellidos,
-        email: admin.email,
-        celular: admin.telefono || admin.celular,
-        empresa_id: admin.empresa,
-        empresa_nombre: admin.empresa_nombre || 'Sin asignar',
-        estado: admin.is_active ? 'activo' : 'inactivo',
-        fecha_creacion: admin.date_joined || admin.created_at
+  getAdminsLocales: () => {
+    return new Promise((resolve) => {
+      // Crear lista de admins desde las empresas
+      const adminsLocales = mockEmpresas.map(empresa => ({
+        id: empresa.id,
+        nombre: empresa.admin_local,
+        email: empresa.admin_email,
+        empresa_id: empresa.id,
+        empresa_nombre: empresa.nombre,
+        empresa_ruc: empresa.ruc,
+        usuarios: empresa.usuarios,
+        reportes: empresa.reportes,
+        estado: empresa.estado,
+        fecha_creacion: empresa.fecha_creacion,
+        ultimo_acceso: '2025-01-29 10:30:00' // Mock
       }));
-
-      return { data: transformedAdmins };
-    } catch (error) {
-      console.error('Error en getAdminsLocales:', error);
-      throw error;
-    }
+      
+      setTimeout(() => resolve({ data: adminsLocales }), 300);
+    });
   },
 
-  createAdminLocal: async (adminData) => {
-    try {
-      const token = localStorage.getItem('accessToken');
+  createAdminLocal: (adminData) => {
+    return new Promise((resolve) => {
+      // Buscar la empresa
+      const empresa = mockEmpresas.find(e => e.id === parseInt(adminData.empresa_id));
       
-      // Transformar datos al formato de la API
-      const payload = {
-        dni: adminData.dni,
-        first_name: adminData.nombres,
-        last_name: adminData.apellidos,
+      if (!empresa) {
+        resolve({ error: 'Empresa no encontrada' });
+        return;
+      }
+
+      // Actualizar admin de la empresa
+      empresa.admin_local = adminData.nombre;
+      empresa.admin_email = adminData.email;
+
+      const newAdmin = {
+        id: empresa.id,
+        nombre: adminData.nombre,
         email: adminData.email,
-        password: adminData.password,
-        telefono: adminData.celular,
-        rol: 'ADMIN_LOCAL',
-        empresa: parseInt(adminData.empresa_id),
-        is_active: true
+        empresa_id: empresa.id,
+        empresa_nombre: empresa.nombre,
+        empresa_ruc: empresa.ruc,
+        usuarios: empresa.usuarios,
+        reportes: empresa.reportes,
+        estado: empresa.estado,
+        fecha_creacion: new Date().toISOString().split('T')[0],
+        ultimo_acceso: null
       };
 
-      const response = await fetch('http://31.97.91.123/api/usuarios/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error al crear admin local');
-      }
-
-      const data = await response.json();
-      
-      // Transformar respuesta
-      const transformedAdmin = {
-        id: data.id,
-        dni: data.dni,
-        nombres: data.first_name,
-        apellidos: data.last_name,
-        email: data.email,
-        celular: data.telefono,
-        empresa_id: data.empresa,
-        empresa_nombre: adminData.empresa_nombre,
-        estado: data.is_active ? 'activo' : 'inactivo',
-        fecha_creacion: data.date_joined || new Date().toISOString()
-      };
-
-      return { data: transformedAdmin };
-    } catch (error) {
-      console.error('Error en createAdminLocal:', error);
-      throw error;
-    }
+      setTimeout(() => resolve({ 
+        success: true,
+        data: newAdmin 
+      }), 500);
+    });
   },
 
-  updateAdminLocal: async (adminId, adminData) => {
-    try {
-      const token = localStorage.getItem('accessToken');
+  updateAdminLocal: (id, adminData) => {
+    return new Promise((resolve) => {
+      const empresa = mockEmpresas.find(e => e.id === id);
       
-      // Preparar payload (solo campos que se envían)
-      const payload = {};
-      
-      if (adminData.dni) payload.dni = adminData.dni;
-      if (adminData.nombres) payload.first_name = adminData.nombres;
-      if (adminData.apellidos) payload.last_name = adminData.apellidos;
-      if (adminData.email) payload.email = adminData.email;
-      if (adminData.celular) payload.telefono = adminData.celular;
-      if (adminData.password) payload.password = adminData.password;
-      if (adminData.empresa_id) payload.empresa = parseInt(adminData.empresa_id);
-
-      const response = await fetch(`http://31.97.91.123/api/usuarios/editar/${adminId}/`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error al actualizar admin local');
+      if (!empresa) {
+        resolve({ error: 'Admin no encontrado' });
+        return;
       }
 
-      const data = await response.json();
-      
-      // Transformar respuesta
-      const transformedAdmin = {
-        id: data.id,
-        dni: data.dni,
-        nombres: data.first_name,
-        apellidos: data.last_name,
-        email: data.email,
-        celular: data.telefono,
-        empresa_id: data.empresa,
-        empresa_nombre: adminData.empresa_nombre,
-        estado: data.is_active ? 'activo' : 'inactivo'
+      // Actualizar datos del admin
+      empresa.admin_local = adminData.nombre || empresa.admin_local;
+      empresa.admin_email = adminData.email || empresa.admin_email;
+
+      const updatedAdmin = {
+        id: empresa.id,
+        nombre: empresa.admin_local,
+        email: empresa.admin_email,
+        empresa_id: empresa.id,
+        empresa_nombre: empresa.nombre,
+        empresa_ruc: empresa.ruc,
+        usuarios: empresa.usuarios,
+        reportes: empresa.reportes,
+        estado: empresa.estado,
+        fecha_creacion: empresa.fecha_creacion
       };
 
-      return { data: transformedAdmin };
-    } catch (error) {
-      console.error('Error en updateAdminLocal:', error);
-      throw error;
-    }
+      setTimeout(() => resolve({ 
+        success: true,
+        data: updatedAdmin 
+      }), 500);
+    });
   },
 
-  deleteAdminLocal: async (adminId) => {
-    try {
-      const token = localStorage.getItem('accessToken');
-
-      const response = await fetch(`http://31.97.91.123/api/usuarios/eliminar/${adminId}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok && response.status !== 204) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error al eliminar admin local');
+  deleteAdminLocal: (id) => {
+    return new Promise((resolve) => {
+      const empresa = mockEmpresas.find(e => e.id === id);
+      
+      if (!empresa) {
+        resolve({ error: 'Admin no encontrado' });
+        return;
       }
 
-      return { success: true };
-    } catch (error) {
-      console.error('Error en deleteAdminLocal:', error);
-      throw error;
-    }
+      // Eliminar admin (dejar empresa sin admin)
+      empresa.admin_local = 'Sin asignar';
+      empresa.admin_email = '';
+
+      setTimeout(() => resolve({ success: true }), 500);
+    });
+  },
+
+  resetPasswordAdmin: (id) => {
+    return new Promise((resolve) => {
+      const empresa = mockEmpresas.find(e => e.id === id);
+      
+      if (!empresa) {
+        resolve({ error: 'Admin no encontrado' });
+        return;
+      }
+
+      // Simular reseteo de contraseña
+      const newPassword = 'FieldOps' + Math.floor(Math.random() * 10000);
+
+      setTimeout(() => resolve({ 
+        success: true,
+        message: 'Contraseña reseteada exitosamente',
+        new_password: newPassword,
+        email: empresa.admin_email
+      }), 500);
+    });
   },
 
   // ============== GESTIÓN DE PLANES ==============
