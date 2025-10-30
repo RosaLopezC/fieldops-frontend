@@ -9,7 +9,7 @@ import { FaSignOutAlt, FaTools } from 'react-icons/fa';
 
 // Páginas de autenticación
 import Login from './pages/auth/Login';
-import Unauthorized from './pages/auth/Unauthorized';
+import Unauthorized from './pages/Unauthorized';
 
 // Páginas del Supervisor
 import SupervisorDashboard from './pages/supervisor/Dashboard';
@@ -33,6 +33,7 @@ import SuperadminDashboard from './pages/superadmin/Dashboard';
 import Empresas from './pages/superadmin/Empresas';
 import AdminsLocales from './pages/superadmin/AdminsLocales';
 import Logs from './pages/superadmin/Logs';
+import Perfil from './pages/Perfil'; // ← AGREGAR ESTA LÍNEA
 
 // Componente temporal para roles sin desarrollar
 const ComingSoonPage = ({ role }) => {
@@ -118,6 +119,7 @@ const AppRoutes = () => {
             isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />
           } 
         />
+        {/* Ruta de acceso denegado - sin Layout */}
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* Rutas del SUPERVISOR con Layout */}
@@ -185,6 +187,24 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Ruta de Perfil - accesible para todos los roles */}
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute allowedRoles={[
+              ROLES.SUPERADMIN,
+              ROLES.ADMIN,
+              ROLES.ADMIN_LOCAL,
+              ROLES.SUPERVISOR,
+              ROLES.ENCARGADO
+            ]}>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Perfil />} />
+        </Route>
 
         {/* Redirección raíz */}
         <Route 

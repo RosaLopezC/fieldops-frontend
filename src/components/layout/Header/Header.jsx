@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import NotificationDropdown from '../../common/NotificationDropdown';
-import NotificationBell from '../../common/NotificationBell'; // ← AGREGAR
-import { FaChevronDown, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import NotificationBell from '../../common/NotificationBell';
+import { FaChevronDown, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 import './Header.scss';
 
 const Header = ({ collapsed }) => {
@@ -41,7 +41,8 @@ const Header = ({ collapsed }) => {
           {notificationRole && (
             <NotificationDropdown role={notificationRole} />
           )}
-          {/* NotificationBell - solo para admin */}
+          
+          {/* NotificationBell - solo para admin con alertas de plan */}
           {user?.rol === 'admin' && (
             <NotificationBell />
           )}
@@ -68,6 +69,35 @@ const Header = ({ collapsed }) => {
                   <p className="dropdown-email">{user?.email}</p>
                 </div>
                 <hr />
+                
+                {/* Botón de Perfil */}
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => {
+                    navigate('/perfil');
+                    setDropdownOpen(false);
+                  }}
+                >
+                  <FaUser />
+                  Mi Perfil
+                </button>
+                
+                {/* Configuración solo para admin y superadmin */}
+                {(user?.rol === 'admin' || user?.rol === 'superadmin') && (
+                  <button 
+                    className="dropdown-item" 
+                    onClick={() => {
+                      navigate('/admin/configuracion');
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <FaCog />
+                    Configuración
+                  </button>
+                )}
+                
+                <hr />
+                
                 <button className="dropdown-item" onClick={handleLogout}>
                   <FaSignOutAlt />
                   Cerrar sesión

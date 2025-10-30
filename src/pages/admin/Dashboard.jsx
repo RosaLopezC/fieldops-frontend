@@ -128,12 +128,12 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      {/* ← AGREGAR AQUÍ EL STORAGE WIDGET */}
+      {/* ⭐ AGREGAR AQUÍ EL STORAGE WIDGET */}
       <div className="dashboard-storage">
         <StorageWidget />
       </div>
 
-      {/* Resto del dashboard... */}
+      {/* Resto del contenido del dashboard */}
       {/* Gráficos */}
       <div className="charts-grid">
         {/* Gráfico de líneas */}
