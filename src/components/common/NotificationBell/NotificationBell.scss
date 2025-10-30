@@ -1,0 +1,195 @@
+@import '../../../styles/variables.scss';
+
+.notification-bell {
+  position: relative;
+
+  &__button {
+    position: relative;
+    background: transparent;
+    border: none;
+    color: $color-texto-principal;
+    font-size: 20px;
+    cursor: pointer;
+    padding: $spacing-sm;
+    border-radius: 50%;
+    transition: all $transition-speed;
+
+    &:hover {
+      background: rgba($color-azul, 0.1);
+      color: $color-azul;
+    }
+
+    svg {
+      display: block;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: $color-danger;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid white;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 380px;
+    max-height: 500px;
+    background: white;
+    border-radius: $border-radius-lg;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    animation: slideDown 0.2s ease-out;
+
+    @media (max-width: 768px) {
+      width: 320px;
+      right: -10px;
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid $color-border;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      color: $color-texto-principal;
+    }
+  }
+
+  &__list {
+    overflow-y: auto;
+    max-height: 400px;
+  }
+
+  &__footer {
+    padding: $spacing-sm $spacing-lg;
+    border-top: 1px solid $color-border;
+    text-align: center;
+
+    button {
+      background: transparent;
+      border: none;
+      color: $color-azul;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      cursor: pointer;
+      padding: $spacing-sm;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.notification-item {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid $color-border;
+  transition: background $transition-speed;
+  position: relative;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: $color-fondo;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+
+    .notif-icon {
+      font-size: 24px;
+
+      &--warning {
+        color: $color-warning;
+      }
+
+      &--info {
+        color: $color-azul;
+      }
+
+      &--danger {
+        color: $color-danger;
+      }
+    }
+  }
+
+  &__content {
+    flex: 1;
+
+    p {
+      margin: 0;
+      font-size: $font-size-sm;
+      color: $color-texto-secundario;
+      line-height: 1.5;
+    }
+  }
+
+  &__dismiss {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    background: transparent;
+    border: none;
+    color: $color-texto-secundario;
+    cursor: pointer;
+    padding: $spacing-xs;
+    opacity: 0;
+    transition: opacity $transition-speed;
+
+    &:hover {
+      color: $color-danger;
+    }
+  }
+
+  &:hover &__dismiss {
+    opacity: 1;
+  }
+
+  &--warning {
+    border-left: 3px solid $color-warning;
+  }
+
+  &--info {
+    border-left: 3px solid $color-azul;
+  }
+
+  &--danger {
+    border-left: 3px solid $color-danger;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

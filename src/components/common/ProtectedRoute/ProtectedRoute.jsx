@@ -1,57 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import useAuth from '../../../hooks/useAuth';
+import authService from '../../../services/authService';
+import BlockedScreen from '../BlockedScreen';
 
-/**
- * Componente para proteger rutas según autenticación y roles
- * @param {React.ReactNode} children - Componente hijo a renderizar
- * @param {Array<string>} allowedRoles - Roles permitidos para acceder
- */
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { isAuthenticated, user, loading } = useAuth();
+  const [checking, setChecking] = useState(true);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockInfo, setBlockInfo] = useState(null);
 
-  // Mostrar loading mientras se verifica la autenticación
-  if (loading) {
+  const user = authService.getCurrentUser();
+  const isAuthenticated = authService.isAuthenticated();
+
+  useEffect(() => {
+    checkAccountStatus();
+  }, []);
+
+  const checkAccountStatus = async () => {
+    try {
+      // Solo verificar si es Admin Local
+      if (user && user.rol === 'admin') {
+        const verificacion = await authService.verificarEstadoCuentaAdmin();
+        
+        if (verificacion.bloqueado) {
+          setIsBlocked(true);
+          setBlockInfo(verificacion);
+        }
+      }
+    } catch (error) {
+      console.error('Error al verificar cuenta:', error);
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const handleContactSupport = () => {
+    window.location.href = 'mailto:soporte@fieldops.com?subject=Renovación de Plan FieldOps';
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    window.location.href = '/login';
+  };
+
+  // Mostrar loading mientras verifica
+  if (checking) {
     return (
       <div style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        flexDirection: 'column',
-        gap: '20px'
+        fontSize: '18px',
+        color: '#666'
       }}>
-        <div style={{
-          width: '50px',
-          height: '50px',
-          border: '5px solid #f3f3f3',
-          borderTop: '5px solid #FF6B35',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
-        <p style={{ color: '#6c757d' }}>Verificando acceso...</p>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+        Verificando estado de cuenta...
       </div>
     );
   }
 
-  // Si no está autenticado, redirigir al login
-  if (!isAuthenticated) {
+  // Mostrar pantalla de bloqueo si está bloqueado
+  if (isBlocked) {
+    return (
+      <BlockedScreen
+        verificacion={blockInfo}
+        onContactSupport={handleContactSupport}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  // Redirigir a login si no está autenticado
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Si hay roles permitidos, verificar que el usuario tenga uno de ellos
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.rol)) {
-    // Redirigir a una página de "no autorizado" o a su dashboard
+  // Verificar roles permitidos
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.rol)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Usuario autenticado y con rol permitido
+  // Todo OK, mostrar contenido
   return children;
 };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import NotificationDropdown from '../../common/NotificationDropdown';
+import NotificationBell from '../../common/NotificationBell'; // ← AGREGAR
 import { FaChevronDown, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import './Header.scss';
 
@@ -39,6 +40,10 @@ const Header = ({ collapsed }) => {
           {/* Notificaciones - solo para supervisor y encargado */}
           {notificationRole && (
             <NotificationDropdown role={notificationRole} />
+          )}
+          {/* NotificationBell - solo para admin */}
+          {user?.rol === 'admin' && (
+            <NotificationBell />
           )}
 
           <div className="user-menu">

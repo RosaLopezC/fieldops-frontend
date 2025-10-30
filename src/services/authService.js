@@ -134,6 +134,31 @@ class AuthService {
     const user = this.getCurrentUser();
     return roles.includes(user?.rol);
   }
+
+  /**
+   * ============== VERIFICACIÓN DE ESTADO DE CUENTA ==============
+   */
+  async verificarEstadoCuentaAdmin() {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      
+      if (!user || user.rol !== 'admin') {
+        return { bloqueado: false };
+      }
+
+      // Obtener ID de empresa del admin
+      const empresaId = user.empresa_id || 1; // Mock
+      
+      // Llamar al servicio de superadmin para verificar
+      const { default: superadminService } = await import('./superadminService');
+      const verificacion = await superadminService.verificarEstadoCuenta(empresaId);
+      
+      return verificacion;
+    } catch (error) {
+      console.error('Error al verificar estado de cuenta:', error);
+      return { bloqueado: false };
+    }
+  }
 }
 
 // Exportar instancia única (Singleton)

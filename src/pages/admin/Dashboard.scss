@@ -127,3 +127,11 @@
   height: 12px;
   border-radius: 3px;
 }
+
+.dashboard-storage {
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: 968px) {
+    margin-bottom: $spacing-lg;
+  }
+}

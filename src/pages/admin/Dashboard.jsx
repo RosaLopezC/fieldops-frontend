@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MetricCard from '../../components/dashboard/MetricCard';
 import Card from '../../components/common/Card';
+import StorageWidget from '../../components/admin/StorageWidget';
 import { 
+  FaUserTie, 
+  FaUsers, // ← Cambiado aquí
   FaFileAlt, 
-  FaClock, 
-  FaCheckCircle, 
-  FaUsers 
+  FaProjectDiagram,
+  FaChartLine
 } from 'react-icons/fa';
 import { 
   LineChart, 
@@ -32,7 +34,11 @@ const AdminDashboard = () => {
     totalReportes: 1450,
     pendientes: 150,
     completados: 1200,
-    usuariosActivos: 43
+    usuariosActivos: 43,
+    supervisores: 8,
+    encargados: 15,
+    reportes: 1450,
+    proyectos: 5
   };
 
   // Datos para gráficos
@@ -71,37 +77,63 @@ const AdminDashboard = () => {
         <p>Resumen general de actividad</p>
       </div>
 
-      {/* Tarjetas de métricas */}
+      {/* Métricas principales */}
       <div className="metrics-grid">
-        <MetricCard
-          title={<>Reportes<br />Validados</>}
-          value={stats.completados}
-          icon={<FaCheckCircle />}
-          gradient="green"
-        />
+        <Card className="metric-card metric-card--blue">
+          <div className="metric-content">
+            <div className="metric-info">
+              <h3>{stats.supervisores}</h3>
+              <p>Total Supervisores</p>
+            </div>
+            <div className="metric-icon">
+              <FaUserTie />
+            </div>
+          </div>
+        </Card>
 
-        <MetricCard
-          title={<>Reportes<br />Pendientes</>}
-          value={stats.pendientes}
-          icon={<FaClock />}
-          gradient="yellow"
-        />
+        <Card className="metric-card metric-card--green">
+          <div className="metric-content">
+            <div className="metric-info">
+              <h3>{stats.encargados}</h3>
+              <p>Total Encargados</p>
+            </div>
+            <div className="metric-icon">
+              <FaUsers /> {/* ← Cambiado aquí */}
+            </div>
+          </div>
+        </Card>
 
-        <MetricCard
-          title={<>Total<br />Reportes</>}
-          value={stats.totalReportes}
-          icon={<FaFileAlt />}
-          gradient="orange"
-        />
+        <Card className="metric-card metric-card--orange">
+          <div className="metric-content">
+            <div className="metric-info">
+              <h3>{stats.reportes}</h3>
+              <p>Total Reportes</p>
+            </div>
+            <div className="metric-icon">
+              <FaFileAlt />
+            </div>
+          </div>
+        </Card>
 
-        <MetricCard
-          title={<>Usuarios<br />Activos</>}
-          value={stats.usuariosActivos}
-          icon={<FaUsers />}
-          gradient="blue"
-        />
+        <Card className="metric-card metric-card--purple">
+          <div className="metric-content">
+            <div className="metric-info">
+              <h3>{stats.proyectos}</h3>
+              <p>Proyectos Activos</p>
+            </div>
+            <div className="metric-icon">
+              <FaProjectDiagram />
+            </div>
+          </div>
+        </Card>
       </div>
 
+      {/* ← AGREGAR AQUÍ EL STORAGE WIDGET */}
+      <div className="dashboard-storage">
+        <StorageWidget />
+      </div>
+
+      {/* Resto del dashboard... */}
       {/* Gráficos */}
       <div className="charts-grid">
         {/* Gráfico de líneas */}
