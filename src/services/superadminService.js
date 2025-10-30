@@ -31,6 +31,7 @@ const mockPlanes = [
 
 // Mock data para el Superadmin
 const mockEmpresas = [
+  // ============== EMPRESA 1: ACTIVA ==============
   {
     id: 1,
     nombre: 'TeleCorp S.A.',
@@ -38,24 +39,25 @@ const mockEmpresas = [
     direccion: 'Av. Principal 123, Lima',
     telefono: '987654321',
     email: 'contacto@telecorp.com',
-    admin_local: 'Juan Pérez',
-    admin_email: 'juan.perez@telecorp.com',
+    admin_local: 'Rosa Elena López',
+    admin_email: 'rosa.lopez@telecorp.com',
     usuarios: 28,
     reportes: 1450,
     estado: 'activa',
     fecha_creacion: '2024-01-15',
-    // NUEVOS CAMPOS DE PLAN
     plan_id: 1,
     plan_nombre: 'Plan Básico',
     storage_plan_gb: 10,
-    storage_usado_gb: 8.5,
+    storage_usado_gb: 7.2,
     precio_mensual: 150,
     precio_gb_extra: 15,
-    fecha_inicio: '2024-01-15',
-    fecha_fin: '2025-02-15', // Vence en febrero 2025
+    fecha_inicio: '2025-01-01',
+    fecha_fin: '2025-12-15', // ← Cambia a una fecha futura (ej: diciembre 2025)
     pago_confirmado: true,
-    dias_restantes: 16 // Calculado dinámicamente
+    dias_restantes: 45 // este campo es solo informativo, lo importante es fecha_fin
   },
+
+  // ============== EMPRESA 2: PRÓXIMA A VENCER ==============
   {
     id: 2,
     nombre: 'ConectaPeru EIRL',
@@ -69,18 +71,21 @@ const mockEmpresas = [
     reportes: 820,
     estado: 'activa',
     fecha_creacion: '2024-02-01',
-    // NUEVOS CAMPOS DE PLAN
+
+    // ⭐ FECHAS ACTUALIZADAS
     plan_id: 2,
     plan_nombre: 'Plan Profesional',
     storage_plan_gb: 15,
-    storage_usado_gb: 16.2, // ⚠️ EXCEDIDO
+    storage_usado_gb: 13.8,
     precio_mensual: 200,
     precio_gb_extra: 12,
-    fecha_inicio: '2024-02-01',
-    fecha_fin: '2025-03-01',
-    pago_confirmado: false, // ⚠️ NO HA PAGADO EXTRA
-    dias_restantes: 30
+    fecha_inicio: '2025-01-01',  // ← Cambiado
+    fecha_fin: '2025-11-04',     // ← Cambia a 5 días desde hoy (ej: 2025-11-04)
+    pago_confirmado: true,
+    dias_restantes: 5
   },
+
+  // ============== EMPRESA 3: VENCIDA ==============
   {
     id: 3,
     nombre: 'FibraNet S.A.C.',
@@ -94,18 +99,21 @@ const mockEmpresas = [
     reportes: 450,
     estado: 'inactiva',
     fecha_creacion: '2024-03-10',
-    // NUEVOS CAMPOS DE PLAN
+
+    // ⭐ FECHAS ACTUALIZADAS
     plan_id: 1,
     plan_nombre: 'Plan Básico',
     storage_plan_gb: 10,
-    storage_usado_gb: 12.8, // ⚠️ EXCEDIDO
+    storage_usado_gb: 12.8,
     precio_mensual: 150,
     precio_gb_extra: 15,
-    fecha_inicio: '2024-03-10',
-    fecha_fin: '2024-12-10', // ⚠️ YA VENCIÓ
+    fecha_inicio: '2024-08-01',
+    fecha_fin: '2024-12-10', // ← Deja vencida para pruebas de bloqueo
     pago_confirmado: false,
-    dias_restantes: -50 // NEGATIVO = VENCIDO
+    dias_restantes: -50
   },
+
+  // ============== EMPRESA 4: ACTIVA ==============
   {
     id: 4,
     nombre: 'RedMax Perú',
@@ -119,17 +127,18 @@ const mockEmpresas = [
     reportes: 1120,
     estado: 'activa',
     fecha_creacion: '2024-01-20',
-    // NUEVOS CAMPOS DE PLAN
+
+    // ⭐ FECHAS ACTUALIZADAS
     plan_id: 3,
     plan_nombre: 'Plan Empresarial',
     storage_plan_gb: 20,
     storage_usado_gb: 18.3,
     precio_mensual: 250,
     precio_gb_extra: 10,
-    fecha_inicio: '2024-01-20',
-    fecha_fin: '2025-02-05',
+    fecha_inicio: '2025-01-01',  // ← Cambiado
+    fecha_fin: '2025-04-20',     // ← Cambiado (80 días desde hoy)
     pago_confirmado: true,
-    dias_restantes: 6 // ⚠️ PRONTO A VENCER
+    dias_restantes: 80
   }
 ];
 
@@ -273,7 +282,6 @@ const superadminService = {
         usuarios: 0,
         reportes: 0,
         estado: 'activa',
-        fecha_creacion: empresaData.fecha_inicio,
         
         // Campos de plan
         plan_id: plan.id,
@@ -545,12 +553,28 @@ const superadminService = {
         return;
       }
 
+      // ⭐ CÁLCULO CORREGIDO DE FECHAS
       const hoy = new Date();
-      const fechaFin = new Date(empresa.fecha_fin);
-      const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+      hoy.setHours(0, 0, 0, 0); // Normalizar a medianoche
+      
+      // Parsear fecha_fin correctamente
+      const [year, month, day] = empresa.fecha_fin.split('-').map(Number);
+      const fechaFin = new Date(year, month - 1, day); // mes es 0-indexed
+      fechaFin.setHours(0, 0, 0, 0);
+      
+      const diferenciaMilisegundos = fechaFin.getTime() - hoy.getTime();
+      const diasRestantes = Math.ceil(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+      
+      // ⭐ LOGS DE DEBUG
+      console.log('🏢 Empresa:', empresa.nombre);
+      console.log('📅 Hoy:', hoy.toISOString().split('T')[0]);
+      console.log('📅 Fecha fin:', empresa.fecha_fin);
+      console.log('📅 Fecha fin parseada:', fechaFin.toISOString().split('T')[0]);
+      console.log('⏰ Días restantes:', diasRestantes);
       
       // 1. VERIFICAR VENCIMIENTO
       if (diasRestantes < 0) {
+        console.log('❌ Plan VENCIDO');
         resolve({
           bloqueado: true,
           tipo: 'VENCIDO',
@@ -568,6 +592,7 @@ const superadminService = {
       
       if (storageExtra > 2 && !empresa.pago_confirmado) {
         const costoExtra = storageExtra * empresa.precio_gb_extra;
+        console.log('❌ STORAGE EXCEDIDO sin pago confirmado');
         resolve({
           bloqueado: true,
           tipo: 'STORAGE_EXCEDIDO',
@@ -600,6 +625,9 @@ const superadminService = {
         });
       }
       
+      console.log('✅ Cuenta ACTIVA - Días restantes:', diasRestantes);
+      console.log('📢 Alertas:', alertas.length);
+      
       resolve({
         bloqueado: false,
         alertas: alertas,
@@ -610,6 +638,7 @@ const superadminService = {
           storage_extra: Math.max(0, storageExtra)
         }
       });
+      
     }, 300);
   },
 

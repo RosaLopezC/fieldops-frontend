@@ -1,10 +1,10 @@
 import api from '../config/api';
+import superadminService from './superadminService';
 
 /**
  * Servicio de autenticación
  * Basado en tu API: POST /api/login/
  */
-
 class AuthService {
   /**
    * Login de usuario
@@ -13,38 +13,114 @@ class AuthService {
    * @returns {Promise} Datos del usuario y tokens
    */
   async login(dni, password) {
-    try {
-      const response = await api.post('/login/', {
-        dni,
-        password,
-      });
+    console.log('🔄 Usando loginMock para desarrollo...');
+    return this.loginMock({ dni, password });
+  }
 
-      const { access, refresh, user } = response.data;
-
-      // Guardar tokens y usuario en localStorage
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      return {
-        success: true,
-        user,
-        tokens: { access, refresh },
-      };
-    } catch (error) {
-      console.error('Error en login:', error);
-      
-      // Manejar errores específicos
-      if (error.response?.status === 401) {
-        throw new Error('Credenciales incorrectas');
-      } else if (error.response?.status === 400) {
-        throw new Error('Datos inválidos. Verifique DNI y contraseña');
-      } else if (!error.response) {
-        throw new Error('Error de conexión con el servidor');
-      } else {
-        throw new Error('Error al iniciar sesión. Intente nuevamente');
+  /**
+   * Login mock para pruebas locales
+   * @param {Object} credentials
+   * @returns {Promise}
+   */
+  loginMock(credentials) {
+    return new Promise((resolve) => {
+      const { dni, password } = credentials;
+      let user = null;
+  
+      // ============== SUPERADMIN ==============
+      if (dni === '99999991' && password === 'admin123') { // ✅ Cambiado
+        user = {
+          id: 1,
+          nombre: 'Superadmin',
+          nombres: 'Super',
+          apellidos: 'Admin',
+          email: 'admin@fieldops.com',
+          dni: '99999991',
+          rol: 'superadmin'
+        };
       }
-    }
+      
+      // ============== ADMIN LOCAL - EMPRESA ACTIVA ==============
+      else if (dni === '12345678' && password === 'admin123') { // ✅ Cambiado
+        user = {
+          id: 2,
+          nombre: 'Rosa Elena López',
+          nombres: 'Rosa Elena',
+          apellidos: 'López Clemente',
+          email: 'rosa.lopez@telecorp.com',
+          dni: '12345678',
+          rol: 'admin',
+          empresa_id: 1,
+          empresa_nombre: 'TeleCorp S.A.'
+        };
+      }
+      
+      // ============== ADMIN LOCAL - PRÓXIMA A VENCER ==============
+      else if (dni === '87654321' && password === 'admin123') { // ✅ Cambiado
+        user = {
+          id: 3,
+          nombre: 'María García',
+          nombres: 'María',
+          apellidos: 'García Rodríguez',
+          email: 'maria.garcia@conectaperu.com',
+          dni: '87654321',
+          rol: 'admin',
+          empresa_id: 2,
+          empresa_nombre: 'ConectaPeru EIRL'
+        };
+      }
+      
+      // ============== ADMIN LOCAL - VENCIDA ==============
+      else if (dni === '11223344' && password === 'admin123') { // ✅ Cambiado
+        user = {
+          id: 4,
+          nombre: 'Carlos López',
+          nombres: 'Carlos',
+          apellidos: 'López Sánchez',
+          email: 'carlos.lopez@fibranet.pe',
+          dni: '11223344',
+          rol: 'admin',
+          empresa_id: 3,
+          empresa_nombre: 'FibraNet S.A.C.'
+        };
+      }
+      
+      // ============== SUPERVISOR ==============
+      else if (dni === '99999993' && password === 'super123') { // ✅ Cambiado
+        user = {
+          id: 5,
+          nombre: 'Supervisor Test',
+          nombres: 'Supervisor',
+          apellidos: 'Test',
+          email: 'supervisor@telecorp.com',
+          dni: '99999993',
+          rol: 'supervisor',
+          empresa_id: 1
+        };
+      }
+      
+      // ============== ENCARGADO ==============
+      else if (dni === '99999994' && password === 'enc123') { // ✅ Cambiado
+        user = {
+          id: 6,
+          nombre: 'Encargado Test',
+          nombres: 'Encargado',
+          apellidos: 'Test',
+          email: 'encargado@telecorp.com',
+          dni: '99999994',
+          rol: 'encargado',
+          empresa_id: 1
+        };
+      }
+      
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('access_token', 'mock-token-' + Date.now());
+        setTimeout(() => resolve({ success: true, user }), 500);
+      } else {
+        setTimeout(() => resolve({ success: false, message: 'DNI o contraseña incorrectos' }), 500);
+      }
+    });
   }
 
   /**
@@ -140,22 +216,36 @@ class AuthService {
    */
   async verificarEstadoCuentaAdmin() {
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const userStr = localStorage.getItem('user');
+      console.log('📦 User from localStorage:', userStr);
       
+      const user = JSON.parse(userStr);
+      console.log('👤 Parsed user:', user);
+      
+      // Solo verificar para admins
       if (!user || user.rol !== 'admin') {
+        console.log('ℹ️ No es admin, retornando bloqueado=false');
         return { bloqueado: false };
       }
 
-      // Obtener ID de empresa del admin
-      const empresaId = user.empresa_id || 1; // Mock
+      const empresaId = user.empresa_id;
+      console.log('🏢 Empresa ID del usuario:', empresaId);
       
-      // Llamar al servicio de superadmin para verificar
-      const { default: superadminService } = await import('./superadminService');
+      if (!empresaId) {
+        console.warn('⚠️ Admin sin empresa_id asignada');
+        return { bloqueado: false };
+      }
+      
+      // Llamar a la función de verificación
+      console.log('🔍 Llamando a superadminService.verificarEstadoCuenta...');
       const verificacion = await superadminService.verificarEstadoCuenta(empresaId);
       
+      console.log('✅ Verificación completa:', verificacion);
+      
       return verificacion;
+      
     } catch (error) {
-      console.error('Error al verificar estado de cuenta:', error);
+      console.error('❌ Error al verificar estado de cuenta:', error);
       return { bloqueado: false };
     }
   }

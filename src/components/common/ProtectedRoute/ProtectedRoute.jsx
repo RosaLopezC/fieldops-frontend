@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import authService from '../../../services/authService';
 import BlockedScreen from '../BlockedScreen';
@@ -11,23 +11,43 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const user = authService.getCurrentUser();
   const isAuthenticated = authService.isAuthenticated();
 
+  // ✅ Memorizar para evitar loops
+  const shouldCheck = useMemo(() => {
+    return user && user.rol === 'admin' && user.empresa_id;
+  }, [user?.rol, user?.empresa_id]);
+
   useEffect(() => {
-    checkAccountStatus();
-  }, []);
+    if (shouldCheck) {
+      checkAccountStatus();
+    } else {
+      setChecking(false);
+    }
+    // eslint-disable-next-line
+  }, [shouldCheck]);
 
   const checkAccountStatus = async () => {
     try {
       // Solo verificar si es Admin Local
       if (user && user.rol === 'admin') {
+        console.log('✅ Verificando estado de cuenta para admin...');
+        console.log('🏢 Empresa ID:', user.empresa_id);
+        
         const verificacion = await authService.verificarEstadoCuentaAdmin();
         
+        console.log('📊 Resultado verificación:', verificacion);
+        
         if (verificacion.bloqueado) {
+          console.log('❌ CUENTA BLOQUEADA:', verificacion.tipo);
           setIsBlocked(true);
           setBlockInfo(verificacion);
+        } else {
+          console.log('✅ Cuenta activa - Acceso permitido');
         }
+      } else {
+        console.log('ℹ️ Usuario no es admin, saltando verificación');
       }
     } catch (error) {
-      console.error('Error al verificar cuenta:', error);
+      console.error('❌ Error al verificar cuenta:', error);
     } finally {
       setChecking(false);
     }
