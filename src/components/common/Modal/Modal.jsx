@@ -8,7 +8,6 @@ const Modal = ({
   onClose, 
   title, 
   children,
-  footer,
   size = 'medium',
   closeOnOverlayClick = true
 }) => {
@@ -43,9 +42,18 @@ const Modal = ({
     }
   };
 
+  const modalClasses = [
+    'modal__content',
+    size === 'large' && 'modal__content--large',
+    size === 'small' && 'modal__content--small'
+  ].filter(Boolean).join(' ');
+
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className={`modal modal--${size}`}>
+      <div
+        className={modalClasses}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal__header">
           <h2 className="modal__title">{title}</h2>
           <button 
@@ -60,12 +68,6 @@ const Modal = ({
         <div className="modal__body">
           {children}
         </div>
-
-        {footer && (
-          <div className="modal__footer">
-            {footer}
-          </div>
-        )}
       </div>
     </div>
   );

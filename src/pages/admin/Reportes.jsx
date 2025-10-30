@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import adminService from '../../services/adminService';
+import DetalleReporte from '../../components/admin/DetalleReporte';
 import Card from '../../components/common/Card';
 import Badge from '../../components/common/Badge';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Table from '../../components/common/Table';
-import { FaFilter, FaDownload } from 'react-icons/fa';
+import { FaFilter, FaDownload, FaEye } from 'react-icons/fa'; // ← AGREGAR FaEye
 import './Reportes.scss';
 
 const AdminReportes = () => {
@@ -16,6 +17,8 @@ const AdminReportes = () => {
     distrito: '',
     zona: ''
   });
+  const [showDetalleModal, setShowDetalleModal] = useState(false); // ← AGREGAR
+  const [selectedReporteId, setSelectedReporteId] = useState(null); // ← AGREGAR
 
   useEffect(() => {
     loadReportes();
@@ -61,6 +64,18 @@ const AdminReportes = () => {
       default:
         return 'secondary';
     }
+  };
+
+  const handleVerDetalle = (reporteId) => {
+    setSelectedReporteId(reporteId);
+    setShowDetalleModal(true);
+  };
+
+  const handleCloseDetalle = () => {
+    setShowDetalleModal(false);
+    setSelectedReporteId(null);
+    // Recargar reportes por si hubo cambios
+    loadReportes();
   };
 
   const tableColumns = [
@@ -117,6 +132,22 @@ const AdminReportes = () => {
         <Badge variant={getEstadoBadge(value)}>
           {value}
         </Badge>
+      )
+    },
+    { // ← AGREGAR ESTA COLUMNA
+      accessor: 'actions',
+      header: 'Acciones',
+      width: '100px',
+      render: (_, reporte) => (
+        <div className="action-buttons">
+          <Button
+            size="small"
+            variant="outline"
+            icon={<FaEye />}
+            onClick={() => handleVerDetalle(reporte.id)}
+            title="Ver detalle"
+          />
+        </div>
       )
     }
   ];
@@ -208,6 +239,13 @@ const AdminReportes = () => {
           </>
         )}
       </Card>
+
+      {/* Modal de Detalle */}
+      <DetalleReporte
+        reporteId={selectedReporteId}
+        isOpen={showDetalleModal}
+        onClose={handleCloseDetalle}
+      />
     </div>
   );
 };

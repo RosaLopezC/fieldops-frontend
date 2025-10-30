@@ -257,7 +257,103 @@ const adminService = {
 
       setTimeout(() => resolve({ data: filteredReportes }), 500);
     });
-  }
-};
+  },
 
-export default adminService;
+  // ============== DETALLE DE REPORTE ==============
+  getReporteDetalle: (reporteId) => {
+    return new Promise((resolve) => {
+      const reporteDetalle = {
+        id: reporteId,
+        codigo: 'PZ10S11012',
+        tipo: 'Poste Eléctrico',
+        distrito: 'LOS OLIVOS',
+        zona: 'Z10',
+        sector: 'Z10S11',
+        encargado: {
+          nombre: 'Daphne Medina Jimenez',
+          dni: '74951060',
+          celular: '998877665'
+        },
+        supervisor: {
+          nombre: 'Carlos Ramírez',
+          dni: '12345678'
+        },
+        fecha_registro: '02-02-2024 15:52:10',
+        estado: 'Registrado',
+
+        // Datos del poste
+        poste: {
+          material: 'Concreto',
+          tipo_estructura: 'Poste simple',
+          altura: '12 metros',
+          resistencia: 'Alta',
+          estado_fisico: 'Bueno',
+          inclinacion: 'Sin inclinación',
+          propietario: 'Luz del Sur',
+          zona_instalacion: 'Vereda'
+        },
+
+        // Cables y elementos
+        cables: {
+          cable_cobre: 'Sí',
+          fibra_optica: 'No',
+          cable_television: 'Sí',
+          numero_cables: 5
+        },
+
+        // Ubicación GPS
+        gps: {
+          latitud: -12.0464,
+          longitud: -77.0428,
+          precision: '5 metros',
+          timestamp: '02-02-2024 15:52:08'
+        },
+
+        // Fotos
+        fotos: [
+          {
+            id: 1,
+            url: 'https://via.placeholder.com/800x600/3B82F6/FFFFFF?text=Foto+1+Poste',
+            descripcion: 'Vista frontal del poste',
+            timestamp: '02-02-2024 15:52:10',
+            obligatoria: true
+          },
+          {
+            id: 2,
+            url: 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Foto+2+Cables',
+            descripcion: 'Detalle de cables',
+            timestamp: '02-02-2024 15:52:15',
+            obligatoria: true
+          },
+          {
+            id: 3,
+            url: 'https://via.placeholder.com/800x600/F59E0B/FFFFFF?text=Foto+3+Placa',
+            descripcion: 'Placa identificadora',
+            timestamp: '02-02-2024 15:52:20',
+            obligatoria: false
+          }
+        ],
+
+        // Observaciones
+        observaciones: 'Poste en buen estado. Se recomienda mantenimiento preventivo en 6 meses.',
+
+        // Comentarios del supervisor (si está observado)
+        comentarios_supervisor: null,
+
+        // Historial de estados
+        historial: [
+          {
+            estado: 'Registrado',
+            fecha: '02-02-2024 15:52:10',
+            usuario: 'Daphne Medina Jimenez',
+            comentario: 'Reporte creado'
+          }
+        ]
+      };
+
+      setTimeout(() => resolve({ data: reporteDetalle }), 500);
+    });
+  }
+}; // ← IMPORTANTE: Cerrar el objeto adminService
+
+export default adminService; // ← IMPORTANTE: Exportar

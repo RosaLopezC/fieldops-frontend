@@ -1,3 +1,34 @@
+// ============== PLANES DISPONIBLES ==============
+const mockPlanes = [
+  {
+    id: 1,
+    nombre: 'Plan Básico',
+    storage_gb: 10,
+    precio_mensual: 150,
+    precio_gb_extra: 15,
+    descripcion: 'Ideal para empresas pequeñas',
+    activo: true
+  },
+  {
+    id: 2,
+    nombre: 'Plan Profesional',
+    storage_gb: 15,
+    precio_mensual: 200,
+    precio_gb_extra: 12,
+    descripcion: 'Para empresas en crecimiento',
+    activo: true
+  },
+  {
+    id: 3,
+    nombre: 'Plan Empresarial',
+    storage_gb: 20,
+    precio_mensual: 250,
+    precio_gb_extra: 10,
+    descripcion: 'Para grandes operaciones',
+    activo: true
+  }
+];
+
 // Mock data para el Superadmin
 const mockEmpresas = [
   {
@@ -7,11 +38,23 @@ const mockEmpresas = [
     direccion: 'Av. Principal 123, Lima',
     telefono: '987654321',
     email: 'contacto@telecorp.com',
-    estado: 'activa',
     admin_local: 'Juan Pérez',
-    usuarios_activos: 28,
-    reportes_totales: 1450,
-    fecha_registro: '2024-01-15'
+    admin_email: 'juan.perez@telecorp.com',
+    usuarios: 28,
+    reportes: 1450,
+    estado: 'activa',
+    fecha_creacion: '2024-01-15',
+    // NUEVOS CAMPOS DE PLAN
+    plan_id: 1,
+    plan_nombre: 'Plan Básico',
+    storage_plan_gb: 10,
+    storage_usado_gb: 8.5,
+    precio_mensual: 150,
+    precio_gb_extra: 15,
+    fecha_inicio: '2024-01-15',
+    fecha_fin: '2025-02-15', // Vence en febrero 2025
+    pago_confirmado: true,
+    dias_restantes: 16 // Calculado dinámicamente
   },
   {
     id: 2,
@@ -20,11 +63,23 @@ const mockEmpresas = [
     direccion: 'Jr. Comercio 456, Callao',
     telefono: '912345678',
     email: 'info@conectaperu.com',
-    estado: 'activa',
     admin_local: 'María García',
-    usuarios_activos: 15,
-    reportes_totales: 820,
-    fecha_registro: '2024-02-20'
+    admin_email: 'maria.garcia@conectaperu.com',
+    usuarios: 15,
+    reportes: 820,
+    estado: 'activa',
+    fecha_creacion: '2024-02-01',
+    // NUEVOS CAMPOS DE PLAN
+    plan_id: 2,
+    plan_nombre: 'Plan Profesional',
+    storage_plan_gb: 15,
+    storage_usado_gb: 16.2, // ⚠️ EXCEDIDO
+    precio_mensual: 200,
+    precio_gb_extra: 12,
+    fecha_inicio: '2024-02-01',
+    fecha_fin: '2025-03-01',
+    pago_confirmado: false, // ⚠️ NO HA PAGADO EXTRA
+    dias_restantes: 30
   },
   {
     id: 3,
@@ -33,11 +88,23 @@ const mockEmpresas = [
     direccion: 'Av. Tecnología 789, Arequipa',
     telefono: '998877665',
     email: 'ventas@fibranet.pe',
-    estado: 'inactiva',
     admin_local: 'Carlos López',
-    usuarios_activos: 0,
-    reportes_totales: 450,
-    fecha_registro: '2023-11-10'
+    admin_email: 'carlos.lopez@fibranet.pe',
+    usuarios: 0,
+    reportes: 450,
+    estado: 'inactiva',
+    fecha_creacion: '2024-03-10',
+    // NUEVOS CAMPOS DE PLAN
+    plan_id: 1,
+    plan_nombre: 'Plan Básico',
+    storage_plan_gb: 10,
+    storage_usado_gb: 12.8, // ⚠️ EXCEDIDO
+    precio_mensual: 150,
+    precio_gb_extra: 15,
+    fecha_inicio: '2024-03-10',
+    fecha_fin: '2024-12-10', // ⚠️ YA VENCIÓ
+    pago_confirmado: false,
+    dias_restantes: -50 // NEGATIVO = VENCIDO
   },
   {
     id: 4,
@@ -46,11 +113,23 @@ const mockEmpresas = [
     direccion: 'Calle Central 321, Trujillo',
     telefono: '955443322',
     email: 'admin@redmax.pe',
-    estado: 'activa',
     admin_local: 'Ana Torres',
-    usuarios_activos: 22,
-    reportes_totales: 1120,
-    fecha_registro: '2024-03-05'
+    admin_email: 'ana.torres@redmax.pe',
+    usuarios: 22,
+    reportes: 1120,
+    estado: 'activa',
+    fecha_creacion: '2024-01-20',
+    // NUEVOS CAMPOS DE PLAN
+    plan_id: 3,
+    plan_nombre: 'Plan Empresarial',
+    storage_plan_gb: 20,
+    storage_usado_gb: 18.3,
+    precio_mensual: 250,
+    precio_gb_extra: 10,
+    fecha_inicio: '2024-01-20',
+    fecha_fin: '2025-02-05',
+    pago_confirmado: true,
+    dias_restantes: 6 // ⚠️ PRONTO A VENCER
   }
 ];
 
@@ -164,25 +243,102 @@ const superadminService = {
 
   createEmpresa: (empresaData) => {
     return new Promise((resolve) => {
+      // Buscar el plan seleccionado
+      const plan = mockPlanes.find(p => p.id === parseInt(empresaData.plan_id));
+      
+      if (!plan) {
+        resolve({ error: 'Plan no encontrado' });
+        return;
+      }
+
+      // Calcular fecha de fin
+      const fechaInicio = new Date(empresaData.fecha_inicio);
+      const fechaFin = new Date(fechaInicio);
+      fechaFin.setMonth(fechaFin.getMonth() + parseInt(empresaData.meses_contrato));
+
+      // Calcular días restantes
+      const hoy = new Date();
+      const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+
+      // Crear nueva empresa
       const newEmpresa = {
         id: mockEmpresas.length + 1,
-        ...empresaData,
-        usuarios_activos: 0,
-        reportes_totales: 0,
-        fecha_registro: new Date().toISOString().split('T')[0]
+        nombre: empresaData.nombre,
+        ruc: empresaData.ruc,
+        direccion: empresaData.direccion,
+        telefono: empresaData.telefono,
+        email: empresaData.email,
+        admin_local: empresaData.admin_local,
+        admin_email: empresaData.admin_email,
+        usuarios: 0,
+        reportes: 0,
+        estado: 'activa',
+        fecha_creacion: empresaData.fecha_inicio,
+        
+        // Campos de plan
+        plan_id: plan.id,
+        plan_nombre: plan.nombre,
+        storage_plan_gb: plan.storage_gb,
+        storage_usado_gb: 0, // Inicia en 0
+        precio_mensual: plan.precio_mensual,
+        precio_gb_extra: plan.precio_gb_extra,
+        fecha_inicio: empresaData.fecha_inicio,
+        fecha_fin: fechaFin.toISOString().split('T')[0],
+        pago_confirmado: true, // Asumimos que pagó al crear
+        dias_restantes: diasRestantes
       };
+
       mockEmpresas.push(newEmpresa);
-      setTimeout(() => resolve({ data: newEmpresa }), 500);
+      
+      setTimeout(() => resolve({ 
+        success: true,
+        data: newEmpresa 
+      }), 500);
     });
   },
 
   updateEmpresa: (id, empresaData) => {
     return new Promise((resolve) => {
       const index = mockEmpresas.findIndex(e => e.id === id);
-      if (index !== -1) {
-        mockEmpresas[index] = { ...mockEmpresas[index], ...empresaData };
-        setTimeout(() => resolve({ data: mockEmpresas[index] }), 500);
+      
+      if (index === -1) {
+        resolve({ error: 'Empresa no encontrada' });
+        return;
       }
+
+      // Si cambió el plan, actualizar datos del plan
+      if (empresaData.plan_id) {
+        const plan = mockPlanes.find(p => p.id === parseInt(empresaData.plan_id));
+        if (plan) {
+          empresaData.plan_nombre = plan.nombre;
+          empresaData.storage_plan_gb = plan.storage_gb;
+          empresaData.precio_mensual = plan.precio_mensual;
+          empresaData.precio_gb_extra = plan.precio_gb_extra;
+        }
+      }
+
+      // Si cambió la duración, recalcular fecha_fin
+      if (empresaData.meses_contrato) {
+        const fechaInicio = new Date(empresaData.fecha_inicio || mockEmpresas[index].fecha_inicio);
+        const fechaFin = new Date(fechaInicio);
+        fechaFin.setMonth(fechaFin.getMonth() + parseInt(empresaData.meses_contrato));
+        empresaData.fecha_fin = fechaFin.toISOString().split('T')[0];
+        
+        // Recalcular días restantes
+        const hoy = new Date();
+        empresaData.dias_restantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+      }
+
+      // Actualizar empresa
+      mockEmpresas[index] = {
+        ...mockEmpresas[index],
+        ...empresaData
+      };
+
+      setTimeout(() => resolve({ 
+        success: true,
+        data: mockEmpresas[index] 
+      }), 500);
     });
   },
 
@@ -193,6 +349,16 @@ const superadminService = {
         empresa.estado = empresa.estado === 'activa' ? 'inactiva' : 'activa';
         setTimeout(() => resolve({ data: empresa }), 500);
       }
+    });
+  },
+
+  deleteEmpresa: (id) => {
+    return new Promise((resolve) => {
+      const index = mockEmpresas.findIndex(e => e.id === id);
+      if (index !== -1) {
+        mockEmpresas.splice(index, 1);
+      }
+      setTimeout(() => resolve({ success: true }), 500);
     });
   },
 
@@ -370,6 +536,179 @@ const superadminService = {
       console.error('Error en deleteAdminLocal:', error);
       throw error;
     }
+  },
+
+  // ============== GESTIÓN DE PLANES ==============
+  getPlanes: () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ data: mockPlanes }), 300);
+    });
+  },
+
+  createPlan: (planData) => {
+    return new Promise((resolve) => {
+      const newPlan = {
+        id: mockPlanes.length + 1,
+        ...planData,
+        activo: true
+      };
+      mockPlanes.push(newPlan);
+      setTimeout(() => resolve({ data: newPlan }), 500);
+    });
+  },
+
+  updatePlan: (id, planData) => {
+    return new Promise((resolve) => {
+      const index = mockPlanes.findIndex(p => p.id === id);
+      if (index !== -1) {
+        mockPlanes[index] = {
+          ...mockPlanes[index],
+          ...planData
+        };
+        
+        // Notificar a empresas afectadas
+        const empresasAfectadas = mockEmpresas.filter(e => e.plan_id === id);
+        console.log(`✉️ Notificando a ${empresasAfectadas.length} empresas sobre cambio de plan`);
+        
+        resolve({ 
+          data: mockPlanes[index],
+          empresas_notificadas: empresasAfectadas.length 
+        });
+      } else {
+        resolve({ data: null });
+      }
+    }, 500);
+  },
+
+  // ============== VERIFICACIÓN DE ESTADO DE CUENTA ==============
+  verificarEstadoCuenta: (empresaId) => {
+    return new Promise((resolve) => {
+      const empresa = mockEmpresas.find(e => e.id === empresaId);
+      
+      if (!empresa) {
+        resolve({ 
+          bloqueado: true, 
+          mensaje: 'Empresa no encontrada' 
+        });
+        return;
+      }
+
+      const hoy = new Date();
+      const fechaFin = new Date(empresa.fecha_fin);
+      const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+      
+      // 1. VERIFICAR VENCIMIENTO
+      if (diasRestantes < 0) {
+        resolve({
+          bloqueado: true,
+          tipo: 'VENCIDO',
+          mensaje: `Tu plan venció hace ${Math.abs(diasRestantes)} días. Contacta con FieldOps para renovar.`,
+          datos: {
+            dias_vencido: Math.abs(diasRestantes),
+            fecha_vencimiento: empresa.fecha_fin
+          }
+        });
+        return;
+      }
+      
+      // 2. VERIFICAR ALMACENAMIENTO EXCEDIDO
+      const storageExtra = empresa.storage_usado_gb - empresa.storage_plan_gb;
+      
+      if (storageExtra > 2 && !empresa.pago_confirmado) {
+        const costoExtra = storageExtra * empresa.precio_gb_extra;
+        resolve({
+          bloqueado: true,
+          tipo: 'STORAGE_EXCEDIDO',
+          mensaje: `Has excedido tu almacenamiento en ${storageExtra.toFixed(1)}GB sin confirmar pago. Costo pendiente: S/. ${costoExtra.toFixed(2)}`,
+          datos: {
+            storage_extra: storageExtra,
+            costo_extra: costoExtra
+          }
+        });
+        return;
+      }
+      
+      // 3. ADVERTENCIAS (NO BLOQUEA)
+      const alertas = [];
+      
+      if (diasRestantes <= 7) {
+        alertas.push({
+          tipo: 'PROXIMO_VENCER',
+          nivel: 'warning',
+          mensaje: `⏰ Tu plan vence en ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''}. Renueva pronto para evitar interrupciones.`
+        });
+      }
+      
+      if (storageExtra > 0) {
+        const costoExtra = storageExtra * empresa.precio_gb_extra;
+        alertas.push({
+          tipo: 'STORAGE_EXTRA',
+          nivel: 'info',
+          mensaje: `💾 Has usado ${storageExtra.toFixed(1)}GB extra. Costo adicional en próxima factura: S/. ${costoExtra.toFixed(2)}`
+        });
+      }
+      
+      resolve({
+        bloqueado: false,
+        alertas: alertas,
+        datos: {
+          dias_restantes: diasRestantes,
+          storage_usado: empresa.storage_usado_gb,
+          storage_plan: empresa.storage_plan_gb,
+          storage_extra: Math.max(0, storageExtra)
+        }
+      });
+    }, 300);
+  },
+
+  // ============== RENOVAR EMPRESA ==============
+  renovarEmpresa: (empresaId, meses = 1) => {
+    return new Promise((resolve) => {
+      const empresa = mockEmpresas.find(e => e.id === empresaId);
+      
+      if (!empresa) {
+        resolve({ success: false, mensaje: 'Empresa no encontrada' });
+        return;
+      }
+      
+      // Calcular nueva fecha de fin
+      const fechaFinActual = new Date(empresa.fecha_fin);
+      const nuevaFechaFin = new Date(fechaFinActual);
+      nuevaFechaFin.setMonth(nuevaFechaFin.getMonth() + meses);
+      
+      empresa.fecha_fin = nuevaFechaFin.toISOString().split('T')[0];
+      empresa.pago_confirmado = true;
+      empresa.estado = 'activa';
+      
+      const hoy = new Date();
+      empresa.dias_restantes = Math.ceil((nuevaFechaFin - hoy) / (1000 * 60 * 60 * 24));
+      
+      setTimeout(() => resolve({ 
+        success: true, 
+        data: empresa,
+        mensaje: `Empresa renovada exitosamente hasta ${empresa.fecha_fin}`
+      }), 500);
+    });
+  },
+
+  // ============== CONFIRMAR PAGO EXTRA ==============
+  confirmarPagoExtra: (empresaId) => {
+    return new Promise((resolve) => {
+      const empresa = mockEmpresas.find(e => e.id === empresaId);
+      
+      if (!empresa) {
+        resolve({ success: false, mensaje: 'Empresa no encontrada' });
+        return;
+      }
+      
+      empresa.pago_confirmado = true;
+      
+      setTimeout(() => resolve({ 
+        success: true, 
+        data: empresa,
+        mensaje: 'Pago extra confirmado exitosamente'
+      }), 500);
+    });
   },
 
   // Logs
