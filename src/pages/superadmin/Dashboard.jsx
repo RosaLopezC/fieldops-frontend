@@ -27,21 +27,78 @@ const SuperadminDashboard = () => {
     admins_activos: 0
   });
   const [empresas, setEmpresas] = useState([]);
+  const [adminsLocales, setAdminsLocales] = useState([]);
+  const [dashStats, setDashStats] = useState({});
 
   useEffect(() => {
-    loadDashboardData();
+    fetchDashboardData();
   }, []);
 
-  const loadDashboardData = async () => {
+  const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, empresasRes] = await Promise.all([
-        superadminService.getGlobalStats(),
-        superadminService.getEmpresas()
-      ]);
       
-      setStats(statsRes.data);
-      setEmpresas(empresasRes.data);
+      // DATOS MOCK TEMPORALES
+      const mockStats = {
+        total_empresas: 4,
+        empresas_activas: 3,
+        total_usuarios: 125,
+        total_reportes: 847,
+        admins_activos: 3
+      };
+      
+      const mockEmpresas = [
+        {
+          id: 1,
+          nombre: "TeleCorp S.A.",
+          ruc: "20123456789",
+          admin_local: "Rosa López",
+          direccion: "Av. Principal 123, Lima",
+          email: "contacto@telecorp.com",
+          usuarios_activos: 45,
+          reportes_totales: 234,
+          estado: "activa"
+        },
+        {
+          id: 2,
+          nombre: "ConectaPeru EIRL",
+          ruc: "20987654321",
+          admin_local: "María García",
+          direccion: "Jr. Comercio 456, Callao",
+          email: "info@conectaperu.com",
+          usuarios_activos: 32,
+          reportes_totales: 187,
+          estado: "activa"
+        },
+        {
+          id: 3,
+          nombre: "FibraNet S.A.C.",
+          ruc: "20555666777",
+          admin_local: "Carlos López",
+          direccion: "Av. Tecnología 789, Arequipa",
+          email: "ventas@fibranet.pe",
+          usuarios_activos: 28,
+          reportes_totales: 156,
+          estado: "inactiva"
+        },
+        {
+          id: 4,
+          nombre: "RedMax Perú",
+          ruc: "20444555666",
+          admin_local: "Ana Torres",
+          direccion: "Calle Central 321, Trujillo",
+          email: "admin@redmax.pe",
+          usuarios_activos: 20,
+          reportes_totales: 270,
+          estado: "activa"
+        }
+      ];
+      
+      setStats(mockStats);
+      setEmpresas(mockEmpresas);
+      setAdminsLocales(mockEmpresas.map(empresa => empresa.admin_local));
+      setDashStats(mockStats);
+      
     } catch (error) {
       console.error('Error al cargar dashboard:', error);
     } finally {
@@ -52,7 +109,7 @@ const SuperadminDashboard = () => {
   const handleToggleEmpresa = async (empresaId) => {
     try {
       await superadminService.toggleEmpresaEstado(empresaId);
-      loadDashboardData();
+      fetchDashboardData();
     } catch (error) {
       console.error('Error al cambiar estado:', error);
     }
@@ -65,6 +122,10 @@ const SuperadminDashboard = () => {
       </div>
     );
   }
+
+  console.log('Empresas:', empresas);
+  console.log('Admins Locales:', adminsLocales);
+  console.log('Dashboard Stats:', dashStats);
 
   return (
     <div className="superadmin-dashboard">
@@ -122,45 +183,48 @@ const SuperadminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {empresas.map((empresa) => (
-                <tr key={empresa.id}>
-                  <td>
-                    <div className="empresa-info">
-                      <strong>{empresa.nombre}</strong>
-                      <span className="empresa-email">{empresa.email}</span>
-                    </div>
-                  </td>
-                  <td>{empresa.ruc}</td>
-                  <td>{empresa.admin_local}</td>
-                  <td className="text-center">{empresa.usuarios_activos}</td>
-                  <td className="text-center">{empresa.reportes_totales}</td>
-                  <td>
-                    <Badge 
-                      variant={empresa.estado === 'activa' ? 'success' : 'secondary'}
-                    >
-                      {empresa.estado}
-                    </Badge>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <Button
-                        size="small"
-                        variant="outline"
-                        icon={<FaEye />}
-                        onClick={() => navigate(`/superadmin/empresas/${empresa.id}`)}
-                      />
-                      <Button
-                        size="small"
-                        variant={empresa.estado === 'activa' ? 'danger' : 'success'}
-                        icon={empresa.estado === 'activa' ? <FaToggleOff /> : <FaToggleOn />}
-                        onClick={() => handleToggleEmpresa(empresa.id)}
+              {empresas && empresas.length > 0 ? (
+                empresas.map(empresa => (
+                  <tr key={empresa.id}>
+                    <td>{empresa.nombre}</td>
+                    <td>{empresa.ruc}</td>
+                    <td>{empresa.admin_local}</td>
+                    <td className="text-center">{empresa.usuarios_activos}</td>
+                    <td className="text-center">{empresa.reportes_totales}</td>
+                    <td>
+                      <Badge 
+                        variant={empresa.estado === 'activa' ? 'success' : 'secondary'}
                       >
-                        {empresa.estado === 'activa' ? 'Desactivar' : 'Activar'}
-                      </Button>
-                    </div>
+                        {empresa.estado}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <Button
+                          size="small"
+                          variant="outline"
+                          icon={<FaEye />}
+                          onClick={() => navigate(`/superadmin/empresas/${empresa.id}`)}
+                        />
+                        <Button
+                          size="small"
+                          variant={empresa.estado === 'activa' ? 'danger' : 'success'}
+                          icon={empresa.estado === 'activa' ? <FaToggleOff /> : <FaToggleOn />}
+                          onClick={() => handleToggleEmpresa(empresa.id)}
+                        >
+                          {empresa.estado === 'activa' ? 'Desactivar' : 'Activar'}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                    No se encontraron empresas
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

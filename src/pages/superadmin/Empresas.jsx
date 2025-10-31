@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import superadminService from '../../services/superadminService';
 import Card from '../../components/common/Card';
-import Table from '../../components/common/Table';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Badge from '../../components/common/Badge';
@@ -362,12 +361,119 @@ const Empresas = () => {
           />
         </div>
 
-        <Table
-          columns={tableColumns}
-          data={filteredEmpresas}
-          loading={loading}
-          emptyMessage="No hay empresas registradas"
-        />
+        <div className="table-wrapper">
+          {loading ? (
+            <div className="loading-state">Cargando empresas...</div>
+          ) : filteredEmpresas.length === 0 ? (
+            <div className="empty-state">No hay empresas registradas</div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th>Empresa</th>
+                    <th>RUC</th>
+                    <th>Plan</th>
+                    <th>Vigencia</th>
+                    <th>Admin Local</th>
+                    <th>Usuarios</th>
+                    <th>Reportes</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEmpresas.map(empresa => (
+                    <tr key={empresa.id}>
+                      <td>
+                        <div>
+                          <strong>{empresa.nombre}</strong>
+                          <br />
+                          <small style={{ color: '#666' }}>{empresa.direccion}</small>
+                        </div>
+                      </td>
+                      <td>{empresa.ruc}</td>
+                      <td>
+                        <div>
+                          <Badge variant="primary">{empresa.plan_nombre}</Badge>
+                          <br />
+                          <small style={{ color: '#666' }}>
+                            {empresa.storage_usado_gb?.toFixed(1) || 0} / {empresa.storage_plan_gb} GB
+                          </small>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <Badge variant={getEstadoBadge(empresa.dias_restantes, empresa.estado)}>
+                            {getEstadoTexto(empresa.dias_restantes, empresa.estado)}
+                          </Badge>
+                          <br />
+                          <small style={{ color: empresa.dias_restantes < 0 ? '#dc3545' : '#666' }}>
+                            {empresa.dias_restantes >= 0 
+                              ? `${empresa.dias_restantes} días` 
+                              : `Venció hace ${Math.abs(empresa.dias_restantes)} días`}
+                          </small>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <strong>{empresa.admin_local}</strong>
+                          <br />
+                          <small style={{ color: '#666' }}>{empresa.admin_email}</small>
+                        </div>
+                      </td>
+                      <td><Badge variant="info">{empresa.usuarios}</Badge></td>
+                      <td><Badge variant="info">{empresa.reportes}</Badge></td>
+                      <td>
+                        <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                          <Button
+                            size="small"
+                            variant="outline"
+                            icon={<FaEye />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(empresa);
+                            }}
+                            title="Ver detalles"
+                          />
+                          <Button
+                            size="small"
+                            variant="outline"
+                            icon={<FaEdit />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(empresa);
+                            }}
+                            title="Editar"
+                          />
+                          <Button
+                            size="small"
+                            variant={empresa.estado === 'activa' ? 'success' : 'secondary'}
+                            icon={empresa.estado === 'activa' ? <FaToggleOn /> : <FaToggleOff />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleEstado(empresa);
+                            }}
+                            title={empresa.estado === 'activa' ? 'Desactivar' : 'Activar'}
+                          />
+                          <Button
+                            size="small"
+                            variant="danger"
+                            icon={<FaTrash />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(empresa);
+                            }}
+                            title="Eliminar"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </Card>
 
       {/* Modal Crear/Editar */}

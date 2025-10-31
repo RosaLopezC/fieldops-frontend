@@ -721,3 +721,9 @@ const superadminService = {
 };
 
 export default superadminService;
+
+// En Dashboard.jsx, línea 37-41
+const [statsRes, empresasRes] = await Promise.all([
+  superadminService.getGlobalStats(), // ← Esto falla
+  superadminService.getEmpresas()     // ← Esto también falla
+]);

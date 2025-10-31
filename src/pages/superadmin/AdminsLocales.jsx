@@ -56,8 +56,63 @@ const AdminsLocales = () => {
   const loadAdmins = async () => {
     try {
       setLoading(true);
-      const response = await superadminService.getAdminsLocales();
-      setAdmins(response.data);
+      
+      const mockAdmins = [
+        {
+          id: 1,
+          nombre: "Rosa Elena López",
+          email: "rosa.lopez@telecorp.com",
+          empresa_id: 1,
+          empresa_nombre: "TeleCorp S.A.",
+          empresa_ruc: "20123456789",
+          usuarios: 45,
+          reportes: 234,
+          estado: "activa",
+          fecha_creacion: "2024-01-15",
+          ultimo_acceso: "2024-10-30"
+        },
+        {
+          id: 2,
+          nombre: "María García",
+          email: "maria.garcia@conectaperu.com",
+          empresa_id: 2,
+          empresa_nombre: "ConectaPeru EIRL",
+          empresa_ruc: "20987654321",
+          usuarios: 32,
+          reportes: 187,
+          estado: "activa",
+          fecha_creacion: "2024-02-10",
+          ultimo_acceso: "2024-10-29"
+        },
+        {
+          id: 3,
+          nombre: "Carlos López",
+          email: "carlos.lopez@fibranet.pe",
+          empresa_id: 3,
+          empresa_nombre: "FibraNet S.A.C.",
+          empresa_ruc: "20555666777",
+          usuarios: 0,
+          reportes: 0,
+          estado: "inactiva",
+          fecha_creacion: "2024-03-05",
+          ultimo_acceso: null
+        },
+        {
+          id: 4,
+          nombre: "Ana Torres",
+          email: "ana.torres@redmax.pe",
+          empresa_id: 4,
+          empresa_nombre: "RedMax Perú",
+          empresa_ruc: "20444555666",
+          usuarios: 20,
+          reportes: 270,
+          estado: "activa",
+          fecha_creacion: "2024-04-12",
+          ultimo_acceso: "2024-10-31"
+        }
+      ];
+      
+      setAdmins(mockAdmins);
     } catch (error) {
       console.error('Error al cargar admins:', error);
       showAlertMessage('error', 'Error al cargar administradores');
@@ -307,12 +362,67 @@ const AdminsLocales = () => {
           />
         </div>
 
-        <Table
-          columns={tableColumns}
-          data={filteredAdmins}
-          loading={loading}
-          emptyMessage="No hay administradores registrados"
-        />
+        <div className="table-wrapper">
+          {loading ? (
+            <div className="loading-state">Cargando administradores...</div>
+          ) : filteredAdmins.length === 0 ? (
+            <div className="empty-state">No hay administradores registrados</div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th>Administrador</th>
+                    <th>Empresa</th>
+                    <th>Usuarios</th>
+                    <th>Reportes</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAdmins.map(admin => (
+                    <tr key={admin.id}>
+                      <td>
+                        <div>
+                          <strong>{admin.nombre}</strong>
+                          <br />
+                          <small style={{ color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <FaEnvelope size={12} /> {admin.email}
+                          </small>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <FaBuilding style={{ color: '#0066cc' }} />
+                            <strong>{admin.empresa_nombre}</strong>
+                          </div>
+                          <small style={{ color: '#666' }}>RUC: {admin.empresa_ruc}</small>
+                        </div>
+                      </td>
+                      <td><Badge variant="info">{admin.usuarios}</Badge></td>
+                      <td><Badge variant="info">{admin.reportes}</Badge></td>
+                      <td>
+                        <Badge variant={admin.estado === 'activa' ? 'success' : 'secondary'}>
+                          {admin.estado === 'activa' ? 'Activo' : 'Inactivo'}
+                        </Badge>
+                      </td>
+                      <td>
+                        <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                          <Button size="small" variant="outline" icon={<FaEye />} onClick={() => handleView(admin)} />
+                          <Button size="small" variant="outline" icon={<FaEdit />} onClick={() => handleEdit(admin)} />
+                          <Button size="small" variant="warning" icon={<FaKey />} onClick={() => handleResetPasswordClick(admin)} />
+                          <Button size="small" variant="danger" icon={<FaTrash />} onClick={() => handleDeleteClick(admin)} />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </Card>
 
       {/* Modal Crear/Editar */}
