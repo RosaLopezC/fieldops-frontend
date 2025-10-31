@@ -1,111 +1,263 @@
 @import '../../styles/variables.scss';
 
+// FONDO TECNOLÓGICO SUAVE Y RESPONSIVE
 .login-page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, $color-azul 0%, $color-azul-dark 100%);
-  padding: 20px;
+  padding: 5vw 2vw;
+  background:
+    linear-gradient(120deg, #f4f8fb 0%, #e3f0ff 60%, #fff7f0 100%),
+    repeating-linear-gradient(135deg, #e3f0ff 0 1.5px, transparent 1.5px 32px),
+    repeating-linear-gradient(45deg, #fff7f0 0 1.5px, transparent 1.5px 32px);
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  background-size: cover, 100vw 100vw, 100vw 100vw;
+  background-position: center, center, center;
 }
 
+// CARD CON DETALLES DE INGENIERÍA Y CALIDEZ
 .login-card {
-  background-color: $color-blanco;
-  border-radius: $border-radius-lg;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  border-radius: 32px;
   width: 100%;
-  max-width: 450px;
-  padding: $spacing-xl;
+  max-width: 420px;
+  padding: 48px 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: fadeIn 0.7s;
+  box-shadow: 0 12px 40px 0 rgba(0,102,204,0.10), 0 2px 12px 0 rgba(255,107,53,0.08);
+  position: relative;
+  z-index: 2;
+  border: 2px solid #e3eaf3;
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.18s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 8px;
+    border-radius: 32px 0 0 32px;
+    background: linear-gradient(180deg, #0066cc 0%, #ff6b35 100%);
+    opacity: 0.80;
+    z-index: 3;
+    transition: opacity 0.2s;
+  }
+
+  &:hover {
+    box-shadow: 0 16px 48px 0 rgba(0,102,204,0.13), 0 4px 20px 0 rgba(255,107,53,0.10);
+    transform: translateY(-2px) scale(1.01);
+    &::before { opacity: 1; }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(40px);}
+  to { opacity: 1; transform: none;}
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: $spacing-xl;
+  margin-bottom: 34px;
+  position: relative;
+  z-index: 4;
 }
 
 .login-logo {
-  width: 200px;
-  margin-bottom: $spacing-lg;
+  width: 100px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 2px 8px rgba(0,102,204,0.10));
+}
+
+.login-welcome {
+  font-size: 1.1rem;
+  color: #ff6b35;
+  font-weight: 700;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #ff6b35 40%, #0066cc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  line-height: 1.2;
 }
 
 .login-title {
-  font-size: $font-size-xl;
-  font-weight: 700;
-  color: $color-texto-principal;
-  margin: 0 0 $spacing-xs 0;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #0066cc;
+  margin: 0 0 6px 0;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #ff6b3533;
 }
 
 .login-subtitle {
-  font-size: $font-size-base;
-  color: $color-texto-secundario;
+  font-size: 1rem;
+  color: #6c7a89;
   margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: 24px;
+  position: relative;
+  z-index: 4;
+}
+
+.input-group {
+  position: relative;
+}
+
+.password-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 16px;
+  top: 38px;
+  background: none;
+  border: none;
+  color: #ff6b35;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 5;
+  padding: 0;
+  transition: color 0.2s;
+  &:hover {
+    color: #0066cc;
+  }
 }
 
 .login-error {
-  background-color: rgba($color-danger, 0.1);
+  background-color: rgba($color-danger, 0.08);
   border: 1px solid $color-danger;
   border-radius: $border-radius;
-  padding: $spacing-md;
-  
+  padding: 12px;
+  margin-bottom: 8px;
   p {
     margin: 0;
     color: $color-danger;
-    font-size: $font-size-sm;
+    font-size: 0.95rem;
     text-align: center;
   }
 }
 
 .login-options {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+  margin-bottom: 4px;
+  margin-top: -10px;
 }
 
 .login-checkbox {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 7px;
   cursor: pointer;
-  
+  font-size: 1.05rem;
+  color: #0066cc;
   input[type="checkbox"] {
+    accent-color: #ff6b35;
     cursor: pointer;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    transition: accent-color 0.2s;
   }
-  
   span {
-    font-size: $font-size-sm;
-    color: $color-texto-secundario;
+    font-size: 1.05rem;
+    color: #0066cc;
+    font-weight: 600;
+    user-select: none;
+  }
+}
+
+// BOTÓN DE INGRESAR DESTACADO Y AMIGABLE
+button[type="submit"] {
+  background: linear-gradient(90deg, #0066cc 60%, #ff6b35 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0,102,204,0.10);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  font-size: 1.15rem;
+  padding: 14px 0;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+  &:hover, &:focus {
+    background: linear-gradient(90deg, #ff6b35 0%, #0066cc 100%);
+    box-shadow: 0 4px 16px rgba(0,102,204,0.13);
+    transform: translateY(-2px) scale(1.03);
   }
 }
 
 .login-footer {
   text-align: center;
-  margin-top: $spacing-lg;
-  padding-top: $spacing-lg;
-  border-top: 1px solid $color-border;
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid #e3eaf3;
+  position: relative;
+  z-index: 4;
 }
 
 .login-version {
-  font-size: $font-size-sm;
-  color: $color-texto-secundario;
+  font-size: 1rem;
+  color: #ff6b35;
   margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 900px) {
   .login-card {
-    padding: $spacing-lg;
+    max-width: 95vw;
+    padding: 32px 10px 24px 10px;
+    border-radius: 18px;
+    &::before { border-radius: 18px 0 0 18px; }
   }
-
   .login-logo {
-    width: 150px;
+    width: 70px;
   }
-
   .login-title {
-    font-size: $font-size-lg;
+    font-size: 1.3rem;
+  }
+  .login-header {
+    margin-bottom: 22px;
+  }
+  .login-form {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 12px 2px 8px 2px;
+    border-radius: 12px;
+    &::before { border-radius: 12px 0 0 12px; }
+  }
+  .login-logo {
+    width: 54px;
+  }
+  .login-title {
+    font-size: 1.05rem;
+  }
+  .login-header {
+    margin-bottom: 12px;
+  }
+  .login-form {
+    gap: 12px;
   }
 }
