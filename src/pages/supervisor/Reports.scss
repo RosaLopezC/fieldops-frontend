@@ -1,195 +1,290 @@
 @import '../../styles/variables.scss';
 
-.supervisor-reports {
-  max-width: 100%;
-}
+.supervisor-reportes-page {
+  padding: $spacing-xl;
+  max-width: 1400px;
+  margin: 0 auto;
 
-.reports-header {
-  margin-bottom: $spacing-xl;
-
-  h1 {
-    color: $color-azul;
-    font-size: 32px;
-    font-weight: 700;
-    margin: 0;
+  @media (max-width: 768px) {
+    padding: $spacing-md;
   }
 }
 
-.filters-section {
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xl;
+  gap: $spacing-lg;
+
+  @media (max-width: 968px) {
+    flex-direction: column;
+  }
+}
+
+.page-header-content {
+  flex: 1;
+
+  h1 {
+    margin: 0 0 $spacing-xs 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: $color-texto-principal;
+
+    @media (max-width: 768px) {
+      font-size: 24px;
+    }
+  }
+
+  .page-subtitle {
+    margin: 0;
+    color: $color-texto-secundario;
+    font-size: $font-size-base;
+  }
+}
+
+.page-header-stats {
+  display: flex;
+  gap: $spacing-md;
+
+  @media (max-width: 968px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.stat-card {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md; // ← Reducir gap entre filas
+  gap: $spacing-xs;
+  padding: $spacing-lg;
+  background: white;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  min-width: 120px;
+  text-align: center;
+  transition: all $transition-speed;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow;
+  }
+
+  &--warning {
+    border-color: $color-warning;
+    background: rgba($color-warning, 0.05);
+
+    .stat-value {
+      color: $color-warning;
+    }
+  }
+
+  &--success {
+    border-color: $color-success;
+    background: rgba($color-success, 0.05);
+
+    .stat-value {
+      color: $color-success;
+    }
+  }
+
+  @media (max-width: 968px) {
+    flex: 1;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.stat-label {
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: $color-azul;
+}
+
+.filters-card {
+  margin-bottom: $spacing-xl;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+
+  @media (max-width: 968px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.filters-left {
+  display: flex;
+  gap: $spacing-md;
+  flex: 1;
+
+  .search-bar {
+    flex: 1;
+    max-width: 400px;
+
+    @media (max-width: 968px) {
+      max-width: none;
+    }
+  }
+
+  button.active {
+    background: rgba($color-azul, 0.1);
+    border-color: $color-azul;
+    color: $color-azul;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.filters-right {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.filters-panel {
+  padding: 0 $spacing-lg $spacing-lg;
+  border-top: 1px solid $color-border;
+  margin-top: $spacing-lg;
+  animation: slideDown 0.3s ease-out;
 }
 
 .filters-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: $spacing-md; // ← Espaciado consistente
-  align-items: end;
-
-  // Ajuste para que el último elemento (botón) ocupe toda la fila en la segunda row
-  &:last-of-type {
-    grid-template-columns: 1fr 1fr 1fr 1fr 180px; // ← Botón más pequeño
-  }
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-    
-    &:last-of-type {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    
-    &:last-of-type {
-      grid-template-columns: 1fr;
-    }
-  }
-}
-
-.filter-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; // ← Espaciado entre label e input
-
-  label {
-    font-size: $font-size-sm;
-    font-weight: 600;
-    color: $color-texto-principal;
-    margin-bottom: 0; // ← Sin margen extra
-  }
-
-  select,
-  input {
-    padding: 10px 12px; // ← Padding más compacto
-    border: 2px solid $color-border;
-    border-radius: $border-radius;
-    font-size: $font-size-sm;
-    background-color: $color-blanco;
-    transition: border-color $transition-speed ease;
-    height: 42px; // ← Altura fija para consistencia
-
-    &:focus {
-      outline: none;
-      border-color: $color-azul;
-    }
-
-    &:hover {
-      border-color: darken($color-border, 10%);
-    }
-  }
-
-  // ← AGREGAR ESTO para arreglar los iconos de fecha
-  input[type="date"] {
-    padding-right: 12px; // ← Más espacio a la derecha
-    
-    &::-webkit-calendar-picker-indicator {
-      margin-right: 0;
-      padding-right: 0;
-    }
-  }
-
-  &.filter-button {
-    justify-content: flex-end;
-  }
-}
-
-.download-buttons {
-  display: flex;
-  gap: $spacing-sm;
-  padding-top: $spacing-md;
-  border-top: 1px solid $color-border;
-  margin-top: $spacing-xs; // ← Margen superior reducido
-}
-
-// Separador entre filtros y tabla
-.table-separator {
-  height: 1px;
-  background-color: $color-border;
-  margin: $spacing-lg 0;
-}
-
-// Modal de detalle
-.report-detail {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(3, 1fr);
   gap: $spacing-lg;
-}
+  margin-top: $spacing-lg;
 
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-md;
+  @media (max-width: 968px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 }
 
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  strong {
-    font-size: $font-size-sm;
-    color: $color-texto-secundario;
-    font-weight: 600;
-  }
-
-  span {
-    font-size: $font-size-base;
-    color: $color-texto-principal;
-  }
-}
-
-.detail-section {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  background-color: $color-fondo;
-  border-radius: $border-radius;
-
-  strong {
-    font-size: $font-size-base;
-    color: $color-texto-principal;
-    font-weight: 600;
-  }
-
-  p {
-    margin: 0;
-    color: $color-texto-secundario;
-    font-size: $font-size-sm;
-  }
-}
-
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: $spacing-md;
-  margin-top: $spacing-sm;
-}
-
-.photo-item {
+.filter-group {
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
 
-  img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: $border-radius;
-    border: 2px solid $color-border;
+  &--date {
+    grid-column: span 2;
+
+    @media (max-width: 968px) {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+      grid-column: span 1;
+    }
   }
 
-  p {
-    font-size: $font-size-xs;
+  label {
+    font-size: $font-size-sm;
+    font-weight: 600;
     color: $color-texto-secundario;
-    text-align: center;
-    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.filter-select {
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background: white;
+  cursor: pointer;
+  transition: all $transition-speed;
+
+  &:hover {
+    border-color: darken($color-border, 10%);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+    box-shadow: 0 0 0 3px rgba($color-azul, 0.1);
+  }
+}
+
+.filters-actions {
+  margin-top: $spacing-lg;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.table-actions {
+  display: flex;
+  gap: $spacing-xs;
+  justify-content: center;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: all $transition-speed;
+  background: transparent;
+
+  &--view {
+    color: $color-azul;
+
+    &:hover {
+      background: rgba($color-azul, 0.1);
+    }
+  }
+
+  &--map {
+    color: $color-success;
+
+    &:hover {
+      background: rgba($color-success, 0.1);
+    }
+  }
+
+  svg {
+    font-size: 14px;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

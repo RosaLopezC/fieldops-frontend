@@ -1,431 +1,617 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'; // ← AGREGADO
-import reportService from '../../services/reportService';
-import Card from '../../components/common/Card';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 import Table from '../../components/common/Table';
-import Badge from '../../components/common/Badge';
+import SearchBar from '../../components/common/SearchBar';
+import DateRangePicker from '../../components/common/DateRangePicker';
+import ExportButton from '../../components/common/ExportButton';
+import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
-import Input from '../../components/common/Input';
-import Pagination from '../../components/common/Pagination';
-import { FaEye, FaDownload, FaFilter, FaFileExcel, FaFileCsv } from 'react-icons/fa';
+import Card from '../../components/common/Card';
+import ReporteDetailModal from '../../components/admin/ReporteDetailModal';
+import { 
+  FaFilter,
+  FaTimes,
+  FaEye,
+  FaMapMarkedAlt
+} from 'react-icons/fa';
+import { exportData } from '../../utils/exportUtils';
 import './Reports.scss';
 
-const SupervisorReports = () => {
-  const location = useLocation(); // ← AGREGADO
-
-  // Estados
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  // Paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  // Filtros
-  const [filters, setFilters] = useState({
-    distrito: '',
-    zona: '',
-    sector: '',
-    tipo: '',
-    estado: '',
-    fecha_inicio: '',
-    fecha_fin: '',
-    search: ''
-  });
-
-  // ← AGREGADO - Determinar el tipo según la ruta
-  const getTipoFromRoute = () => {
-    if (location.pathname.includes('/postes')) {
-      return 'Poste';
-    } else if (location.pathname.includes('/predios')) {
-      return 'Predio';
-    }
-    return ''; // Todos
-  };
-
-  // ← MODIFICADO - useEffect para detectar cambios de ruta
-  useEffect(() => {
-    const tipoFromRoute = getTipoFromRoute();
-    setFilters(prev => ({ ...prev, tipo: tipoFromRoute }));
-    loadReports();
-  }, [location.pathname]); // ← Agregada dependencia de ruta
-
-  // ← MODIFICADO - loadReports con filtro automático por ruta
-  const loadReports = async () => {
-    try {
-      console.log('🔄 [Reports] Cargando reportes...');
-      setLoading(true);
-      
-      // Aplicar filtro de tipo según la ruta
-      const tipoFromRoute = getTipoFromRoute();
-      const filterData = { ...filters, tipo: tipoFromRoute };
-      
-      console.log('🔍 [Reports] Filtros aplicados:', filterData);
-      
-      const data = await reportService.getReports(filterData);
-      setReports(data);
-      setCurrentPage(1);
-    } catch (error) {
-      console.error('❌ [Reports] Error:', error);
-      alert('Error: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleViewDetail = async (report) => {
-    try {
-      const detail = await reportService.getReportDetail(report.id);
-      setSelectedReport(detail);
-      setModalOpen(true);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const handleDownloadReport = (report) => {
-    console.log('📥 Descargando reporte:', report.id);
-    alert(`Descargando reporte #${report.id} (Funcionalidad pendiente de backend)`);
-  };
-
-  // Funciones de exportación
-  const handleExportExcel = () => {
-    const dataToExport = getPaginatedReports();
-    console.log('📊 Exportando a Excel:', dataToExport.length, 'reportes');
-    alert(`Exportando ${dataToExport.length} reportes a Excel (Funcionalidad pendiente)`);
-  };
-
-  const handleExportCSV = () => {
-    const postesOnly = getPaginatedReports().filter(r => r.tipo === 'electrico' || r.tipo === 'telematico');
-    console.log('📄 Exportando postes a CSV:', postesOnly.length, 'reportes');
-    alert(`Exportando ${postesOnly.length} postes a CSV (Funcionalidad pendiente)`);
-  };
-
-  // Paginación
-  const getPaginatedReports = () => {
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    return reports.slice(startIndex, endIndex);
-  };
-
-  const totalPages = Math.ceil(reports.length / rowsPerPage);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleRowsPerPageChange = (rows) => {
-    setRowsPerPage(rows);
-    setCurrentPage(1); // Reset a primera página
-  };
-
-  // Configuración de columnas
-  const tableColumns = [
-    { header: 'ID', accessor: 'id', width: '80px' },
-    { header: 'Tipo reporte', accessor: 'tipo' },
-    { header: 'Código de Poste', accessor: 'codigo_poste' },
-    { header: 'Distrito', accessor: 'distrito' },
-    { header: 'Zona', accessor: 'zona' },
-    { header: 'Sector', accessor: 'sector_nombre' },
-    { header: 'Encargado', accessor: 'encargado_nombre' },
-    { header: 'Fecha', accessor: 'fecha_reporte' },
-    {
-      header: 'Estado',
-      accessor: 'estado',
-      render: (value) => {
-        const variants = {
-          'completado': 'success',
-          'pendiente': 'warning',
-          'observado': 'danger',
-          'registrado': 'info'
-        };
-        const labels = {
-          'completado': 'Registrado',
-          'pendiente': 'Pendiente',
-          'observado': 'Observado',
-          'registrado': 'Registrado'
-        };
-        return <Badge variant={variants[value]}>{labels[value]}</Badge>;
+// MOCK DATA - Todos los reportes de la zona del supervisor
+const mockReportes = [
+  {
+    id: 1,
+    tipo: 'Poste Eléctrico',
+    fecha: '2025-01-31',
+    hora: '09:30:00',
+    encargado: 'Carlos Ramírez',
+    supervisor: 'Juan Pérez',
+    zona: 'Lima Norte',
+    sector: 'Sector A1',
+    estado: 'pendiente',
+    gps: { lat: -12.0464, lng: -77.0428, precision: 5 },
+    fotos: [
+      { url: 'https://via.placeholder.com/400', descripcion: 'Vista frontal' },
+      { url: 'https://via.placeholder.com/400', descripcion: 'Vista lateral' }
+    ],
+    datos: {
+      'Material': 'Concreto',
+      'Altura': '12 metros',
+      'Estado': 'Bueno'
+    },
+    observaciones: 'Estructura en buen estado',
+    historial: [
+      {
+        tipo: 'creado',
+        accion: 'Reporte creado',
+        usuario: 'Carlos Ramírez',
+        fecha: '2025-01-31 09:30'
       }
+    ]
+  },
+  {
+    id: 2,
+    tipo: 'Poste Telemático',
+    fecha: '2025-01-30',
+    hora: '14:15:00',
+    encargado: 'Lucía Mendoza',
+    supervisor: 'Juan Pérez',
+    zona: 'Lima Norte',
+    sector: 'Sector A2',
+    estado: 'aprobado',
+    gps: { lat: -12.0500, lng: -77.0450, precision: 3 },
+    fotos: [
+      { url: 'https://via.placeholder.com/400', descripcion: 'General' }
+    ],
+    datos: {
+      'Material': 'Metálico',
+      'Altura': '15 metros'
+    },
+    observaciones: null,
+    historial: [
+      {
+        tipo: 'creado',
+        accion: 'Reporte creado',
+        usuario: 'Lucía Mendoza',
+        fecha: '2025-01-30 14:15'
+      },
+      {
+        tipo: 'aprobado',
+        accion: 'Reporte aprobado',
+        usuario: 'Juan Pérez (Supervisor)',
+        fecha: '2025-01-30 16:00',
+        comentario: 'Correcto'
+      }
+    ]
+  },
+  {
+    id: 3,
+    tipo: 'Poste Eléctrico',
+    fecha: '2025-01-29',
+    hora: '11:00:00',
+    encargado: 'Roberto Quispe',
+    supervisor: 'Juan Pérez',
+    zona: 'Lima Norte',
+    sector: 'Sector A1',
+    estado: 'observado',
+    gps: { lat: -12.0480, lng: -77.0440, precision: 8 },
+    fotos: [
+      { url: 'https://via.placeholder.com/400', descripcion: 'Frontal' }
+    ],
+    datos: {
+      'Material': 'Madera',
+      'Altura': '10 metros'
+    },
+    observaciones: 'Inclinación leve',
+    historial: [
+      {
+        tipo: 'creado',
+        accion: 'Reporte creado',
+        usuario: 'Roberto Quispe',
+        fecha: '2025-01-29 11:00'
+      },
+      {
+        tipo: 'observado',
+        accion: 'Reporte observado',
+        usuario: 'Juan Pérez (Supervisor)',
+        fecha: '2025-01-29 15:00',
+        comentario: 'Faltan fotos laterales'
+      }
+    ]
+  },
+  {
+    id: 4,
+    tipo: 'Predio',
+    fecha: '2025-01-28',
+    hora: '10:45:00',
+    encargado: 'Ana Torres',
+    supervisor: 'Juan Pérez',
+    zona: 'Lima Centro',
+    sector: 'Sector C1',
+    estado: 'pendiente',
+    gps: { lat: -12.0600, lng: -77.0300, precision: 4 },
+    fotos: [
+      { url: 'https://via.placeholder.com/400', descripcion: 'Fachada principal' },
+      { url: 'https://via.placeholder.com/400', descripcion: 'Interior' }
+    ],
+    datos: {
+      'Tipo de Predio': 'Residencial',
+      'Área': '120 m²',
+      'Niveles': '2',
+      'Estado': 'Bueno'
+    },
+    observaciones: 'Predio en condiciones óptimas',
+    historial: [
+      {
+        tipo: 'creado',
+        accion: 'Reporte creado',
+        usuario: 'Ana Torres',
+        fecha: '2025-01-28 10:45'
+      }
+    ]
+  },
+  {
+    id: 5,
+    tipo: 'Predio',
+    fecha: '2025-01-27',
+    hora: '16:20:00',
+    encargado: 'Luis Gamarra',
+    supervisor: 'Juan Pérez',
+    zona: 'Lima Sur',
+    sector: 'Sector D2',
+    estado: 'aprobado',
+    gps: { lat: -12.0800, lng: -77.0500, precision: 6 },
+    fotos: [
+      { url: 'https://via.placeholder.com/400', descripcion: 'Vista aérea' }
+    ],
+    datos: {
+      'Tipo de Predio': 'Comercial',
+      'Área': '300 m²',
+      'Niveles': '1',
+      'Estado': 'Regular'
+    },
+    observaciones: 'Requiere mantenimiento en fachada',
+    historial: [
+      {
+        tipo: 'creado',
+        accion: 'Reporte creado',
+        usuario: 'Luis Gamarra',
+        fecha: '2025-01-27 16:20'
+      },
+      {
+        tipo: 'aprobado',
+        accion: 'Reporte aprobado',
+        usuario: 'Juan Pérez (Supervisor)',
+        fecha: '2025-01-27 18:00',
+        comentario: 'Aprobar con observación'
+      }
+    ]
+  }
+];
+
+const SupervisorReports = () => {
+  const { user } = useAuth();
+  const [reportes, setReportes] = useState(mockReportes);
+  const [filteredData, setFilteredData] = useState(mockReportes);
+  const [loading, setLoading] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [tipoFilter, setTipoFilter] = useState('todos');
+  const [estadoFilter, setEstadoFilter] = useState('todos');
+  const [encargadoFilter, setEncargadoFilter] = useState('todos');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [selectedReporte, setSelectedReporte] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  const location = useLocation();
+
+  let sidebarTipo = 'todos';
+  if (location.pathname.endsWith('/postes')) sidebarTipo = 'postes';
+  else if (location.pathname.endsWith('/predios')) sidebarTipo = 'predios';
+
+  const tipos = ['todos', ...new Set(reportes.map(r => r.tipo))];
+  const encargados = ['todos', ...new Set(reportes.map(r => r.encargado))];
+
+  const tiposFiltrados = sidebarTipo === 'postes'
+    ? tipos.filter(t => t === 'todos' || t.includes('Poste'))
+    : tipos;
+
+  useEffect(() => {
+    let filtered = reportes;
+
+    // Filtro por sidebar según la URL
+    if (sidebarTipo === 'postes') {
+      filtered = filtered.filter(r => r.tipo === 'Poste Eléctrico' || r.tipo === 'Poste Telemático');
+    } else if (sidebarTipo === 'predios') {
+      filtered = filtered.filter(r => r.tipo === 'Predio');
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(r => 
+        r.encargado.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.id.toString().includes(searchTerm)
+      );
+    }
+
+    if (tipoFilter !== 'todos') {
+      filtered = filtered.filter(r => r.tipo === tipoFilter);
+    }
+
+    if (estadoFilter !== 'todos') {
+      filtered = filtered.filter(r => r.estado === estadoFilter);
+    }
+
+    if (encargadoFilter !== 'todos') {
+      filtered = filtered.filter(r => r.encargado === encargadoFilter);
+    }
+
+    if (startDate) {
+      filtered = filtered.filter(r => r.fecha >= startDate);
+    }
+    if (endDate) {
+      filtered = filtered.filter(r => r.fecha <= endDate);
+    }
+
+    setFilteredData(filtered);
+  }, [sidebarTipo, searchTerm, tipoFilter, estadoFilter, encargadoFilter, startDate, endDate, reportes]);
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setTipoFilter('todos');
+    setEstadoFilter('todos');
+    setEncargadoFilter('todos');
+    setStartDate('');
+    setEndDate('');
+  };
+
+  const hasActiveFilters = searchTerm || tipoFilter !== 'todos' || estadoFilter !== 'todos' || encargadoFilter !== 'todos' || startDate || endDate;
+
+  const columns = [
+    {
+      key: 'id',
+      label: 'ID',
+      width: '80px',
+      sortable: true,
+      render: (value) => `#${value}`
     },
     {
-      header: 'Acciones',
-      accessor: 'acciones',
-      render: (_, row) => (
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button 
-            size="small" 
-            variant="outline" 
-            icon={<FaEye />}
-            onClick={() => handleViewDetail(row)}
-          />
-          <Button 
-            size="small" 
-            variant="secondary" 
-            icon={<FaDownload />}
-            onClick={() => handleDownloadReport(row)}
-          />
+      key: 'tipo',
+      label: 'Tipo',
+      sortable: true,
+      render: (value) => (
+        <span style={{ 
+          fontWeight: 600,
+          color: value === 'Poste Eléctrico' ? '#0066cc' : '#FF6B35'
+        }}>
+          {value}
+        </span>
+      )
+    },
+    {
+      key: 'fecha',
+      label: 'Fecha',
+      width: '110px',
+      sortable: true
+    },
+    {
+      key: 'encargado',
+      label: 'Encargado',
+      sortable: true,
+      render: (value, row) => (
+        <div>
+          <div style={{ fontWeight: 600 }}>{value}</div>
+          <div style={{ fontSize: '12px', color: '#6c757d' }}>{row.sector}</div>
         </div>
       )
+    },
+    {
+      key: 'gps',
+      label: 'GPS',
+      width: '80px',
+      render: (value) => (
+        <span style={{ 
+          color: value.precision <= 5 ? '#28a745' : value.precision <= 10 ? '#ffc107' : '#dc3545',
+          fontWeight: 600,
+          fontSize: '13px'
+        }}>
+          ±{value.precision}m
+        </span>
+      )
+    },
+    {
+      key: 'estado',
+      label: 'Estado',
+      width: '120px',
+      sortable: true,
+      render: (value) => <StatusBadge status={value} />
     }
   ];
 
+  const renderActions = (reporte) => (
+    <div className="table-actions">
+      <button
+        className="action-btn action-btn--view"
+        onClick={() => handleViewDetail(reporte)}
+        title="Ver Detalle"
+      >
+        <FaEye />
+      </button>
+      <button
+        className="action-btn action-btn--map"
+        onClick={() => handleViewMap(reporte)}
+        title="Ver en Mapa"
+      >
+        <FaMapMarkedAlt />
+      </button>
+    </div>
+  );
+
+  const handleViewDetail = (reporte) => {
+    setSelectedReporte(reporte);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleViewMap = (reporte) => {
+    const url = `https://www.google.com/maps?q=${reporte.gps.lat},${reporte.gps.lng}`;
+    window.open(url, '_blank');
+  };
+
+  const handleAprobar = (reporteId) => {
+    setReportes(prev => prev.map(r => 
+      r.id === reporteId 
+        ? { 
+            ...r, 
+            estado: 'aprobado',
+            historial: [
+              ...r.historial,
+              {
+                tipo: 'aprobado',
+                accion: 'Reporte aprobado',
+                usuario: `${user.nombres} ${user.apellidos} (Supervisor)`,
+                fecha: new Date().toLocaleString('es-PE')
+              }
+            ]
+          }
+        : r
+    ));
+    alert('✅ Reporte aprobado exitosamente');
+  };
+
+  const handleRechazar = (reporteId) => {
+    setReportes(prev => prev.map(r => 
+      r.id === reporteId 
+        ? { 
+            ...r, 
+            estado: 'rechazado',
+            historial: [
+              ...r.historial,
+              {
+                tipo: 'rechazado',
+                accion: 'Reporte rechazado',
+                usuario: `${user.nombres} ${user.apellidos} (Supervisor)`,
+                fecha: new Date().toLocaleString('es-PE')
+              }
+            ]
+          }
+        : r
+    ));
+    alert('✅ Reporte rechazado exitosamente');
+  };
+
+  const handleObservar = (reporteId, observacion) => {
+    setReportes(prev => prev.map(r => 
+      r.id === reporteId 
+        ? { 
+            ...r, 
+            estado: 'observado',
+            historial: [
+              ...r.historial,
+              {
+                tipo: 'observado',
+                accion: 'Reporte observado',
+                usuario: `${user.nombres} ${user.apellidos} (Supervisor)`,
+                fecha: new Date().toLocaleString('es-PE'),
+                comentario: observacion
+              }
+            ]
+          }
+        : r
+    ));
+    alert('✅ Reporte observado exitosamente');
+  };
+
+  const handleExport = useCallback(async (format, filename) => {
+    try {
+      const dataToExport = filteredData.map(reporte => ({
+        'ID': reporte.id,
+        'Tipo': reporte.tipo,
+        'Fecha': reporte.fecha,
+        'Hora': reporte.hora,
+        'Encargado': reporte.encargado,
+        'Zona': reporte.zona,
+        'Sector': reporte.sector,
+        'Estado': reporte.estado,
+        'Latitud': reporte.gps.lat,
+        'Longitud': reporte.gps.lng,
+        'Precisión GPS': `${reporte.gps.precision}m`
+      }));
+
+      const result = await exportData(
+        format,
+        dataToExport,
+        filename,
+        'Listado de Reportes - Supervisor'
+      );
+
+      if (result.success) {
+        return true;
+      } else {
+        throw new Error('Error al exportar');
+      }
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      throw error;
+    }
+  }, [filteredData]);
+
   return (
-    <div className="supervisor-reports">
-      <div className="reports-header">
-        <h1>Reporte</h1>
+    <div className="supervisor-reportes-page">
+      <div className="page-header">
+        <div className="page-header-content">
+          <h1>Mis Reportes</h1>
+          <p className="page-subtitle">
+            Gestiona y valida los reportes de tu zona
+          </p>
+        </div>
+        <div className="page-header-stats">
+          <div className="stat-card stat-card--warning">
+            <span className="stat-label">Pendientes</span>
+            <span className="stat-value">
+              {reportes.filter(r => r.estado === 'pendiente').length}
+            </span>
+          </div>
+          <div className="stat-card stat-card--success">
+            <span className="stat-label">Aprobados</span>
+            <span className="stat-value">
+              {reportes.filter(r => r.estado === 'aprobado').length}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Card única con filtros y tabla */}
-      <Card>
-        {/* Filtros */}
-        <div className="filters-section">
-          <div className="filters-row">
-            <div className="filter-item">
-              <label>Distrito</label>
-              <select
-                value={filters.distrito}
-                onChange={(e) => setFilters({ ...filters, distrito: e.target.value })}
-              >
-                <option value="">Seleccione</option>
-                <option value="LOS OLIVOS">LOS OLIVOS</option>
-                <option value="SAN JUAN">SAN JUAN</option>
-                <option value="INDEPENDENCIA">INDEPENDENCIA</option>
-              </select>
-            </div>
-
-            <div className="filter-item">
-              <label>Zona</label>
-              <select
-                value={filters.zona}
-                onChange={(e) => setFilters({ ...filters, zona: e.target.value })}
-              >
-                <option value="">Seleccione</option>
-                <option value="Z10">Z10</option>
-                <option value="Z20">Z20</option>
-                <option value="Z30">Z30</option>
-              </select>
-            </div>
-
-            <div className="filter-item">
-              <label>Sector</label>
-              <select
-                value={filters.sector}
-                onChange={(e) => setFilters({ ...filters, sector: e.target.value })}
-              >
-                <option value="">Seleccione</option>
-                <option value="Z10S11">Z10S11</option>
-                <option value="Z10S12">Z10S12</option>
-                <option value="Z10S13">Z10S13</option>
-                <option value="Z20S11">Z20S11</option>
-                <option value="Z20S12">Z20S12</option>
-                <option value="Z20S13">Z20S13</option>
-                <option value="Z30S11">Z30S11</option>
-                <option value="Z30S12">Z30S12</option>
-              </select>
-            </div>
-
-            <div className="filter-item">
-              <label>Tipo de Estado</label>
-              <select
-                value={filters.estado}
-                onChange={(e) => setFilters({ ...filters, estado: e.target.value })}
-              >
-                <option value="">Seleccione</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="completado">Completado</option>
-                <option value="observado">Observado</option>
-                <option value="registrado">Registrado</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="filters-row">
-            <div className="filter-item">
-              <label>Fecha inicio</label>
-              <input
-                type="date"
-                value={filters.fecha_inicio}
-                onChange={(e) => setFilters({ ...filters, fecha_inicio: e.target.value })}
-              />
-            </div>
-
-            <div className="filter-item">
-              <label>Fecha fin</label>
-              <input
-                type="date"
-                value={filters.fecha_fin}
-                onChange={(e) => setFilters({ ...filters, fecha_fin: e.target.value })}
-              />
-            </div>
-
-            <div className="filter-item">
-              <label>Buscador</label>
-              <input
-                type="text"
-                placeholder="Buscar por ID"
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              />
-            </div>
-
-            <div className="filter-item filter-button">
-              <Button 
-                variant="primary" 
-                icon={<FaFilter />} 
-                onClick={loadReports}
-                fullWidth
-              >
-                Filtrar
-              </Button>
-            </div>
-          </div>
-
-          <div className="download-buttons">
-            <Button 
-              variant="primary" 
-              icon={<FaFileExcel />} 
-              onClick={handleExportExcel}
-              size="small"
+      <Card className="filters-card">
+        <div className="filters-header">
+          <div className="filters-left">
+            <SearchBar
+              placeholder="Buscar por ID, encargado..."
+              onSearch={setSearchTerm}
+              initialValue={searchTerm}
+            />
+            <Button
+              variant="outline"
+              leftIcon={<FaFilter />}
+              onClick={() => setShowFilters(!showFilters)}
+              className={showFilters ? 'active' : ''}
             >
-              Descargar xlsx
+              Filtros {hasActiveFilters && `(${[tipoFilter !== 'todos', estadoFilter !== 'todos', encargadoFilter !== 'todos', startDate, endDate].filter(Boolean).length})`}
             </Button>
-            <Button 
-              variant="primary" 
-              icon={<FaFileCsv />} 
-              onClick={handleExportCSV}
-              size="small"
-            >
-              Descargar CSV Postes
-            </Button>
+          </div>
+          <div className="filters-right">
+            <ExportButton
+              data={filteredData}
+              onExport={handleExport}
+              filename={`reportes-supervisor-${new Date().toISOString().split('T')[0]}`}
+            />
           </div>
         </div>
 
-        {/* Separador visual */}
-        <div className="table-separator"></div>
+        {showFilters && (
+          <div className="filters-panel">
+            <div className="filters-row">
+              {sidebarTipo !== 'predios' && (
+                <div className="filter-group">
+                  <label>Tipo</label>
+                  <select
+                    value={tipoFilter}
+                    onChange={(e) => setTipoFilter(e.target.value)}
+                    className="filter-select"
+                  >
+                    {tiposFiltrados.map(tipo => (
+                      <option key={tipo} value={tipo}>
+                        {tipo === 'todos' ? 'Todos' : tipo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-        {/* Tabla */}
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <p>Cargando reportes...</p>
+              <div className="filter-group">
+                <label>Estado</label>
+                <select
+                  value={estadoFilter}
+                  onChange={(e) => setEstadoFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="todos">Todos</option>
+                  <option value="pendiente">Pendientes</option>
+                  <option value="aprobado">Aprobados</option>
+                  <option value="observado">Observados</option>
+                  <option value="rechazado">Rechazados</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Encargado</label>
+                <select
+                  value={encargadoFilter}
+                  onChange={(e) => setEncargadoFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  {encargados.map(enc => (
+                    <option key={enc} value={enc}>
+                      {enc === 'todos' ? 'Todos' : enc}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group filter-group--date">
+                <label>Rango de Fechas</label>
+                <DateRangePicker
+                  startDate={startDate}
+                  endDate={endDate}
+                  onStartDateChange={setStartDate}
+                  onEndDateChange={setEndDate}
+                />
+              </div>
+            </div>
+
+            {hasActiveFilters && (
+              <div className="filters-actions">
+                <Button
+                  variant="outline"
+                  size="small"
+                  leftIcon={<FaTimes />}
+                  onClick={handleClearFilters}
+                >
+                  Limpiar Filtros
+                </Button>
+              </div>
+            )}
           </div>
-        ) : (
-          <>
-            <Table
-              columns={tableColumns}
-              data={getPaginatedReports()}
-              emptyMessage="No hay reportes disponibles"
-            />
-            
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              totalItems={reports.length}
-            />
-          </>
         )}
       </Card>
 
-      {/* Modal de detalle */}
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Detalle del Reporte"
-        size="large"
-      >
-        {selectedReport && (
-          <div className="report-detail">
-            <div className="detail-grid">
-              <div className="detail-item">
-                <strong>ID:</strong>
-                <span>{selectedReport.id}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Tipo:</strong>
-                <span>{selectedReport.tipo}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Estado:</strong>
-                <Badge variant="info">{selectedReport.estado}</Badge>
-              </div>
-              <div className="detail-item">
-                <strong>Encargado:</strong>
-                <span>{selectedReport.encargado_nombre}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Distrito:</strong>
-                <span>{selectedReport.distrito_nombre}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Zona:</strong>
-                <span>{selectedReport.zona_nombre}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Sector:</strong>
-                <span>{selectedReport.sector_nombre}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Fecha:</strong>
-                <span>{selectedReport.fecha_reporte}</span>
-              </div>
-            </div>
+      <Card>
+        <Table
+          columns={columns}
+          data={filteredData}
+          loading={loading}
+          actions={renderActions}
+          emptyMessage="No se encontraron reportes"
+          pagination={true}
+          itemsPerPage={10}
+          sortable={true}
+        />
+      </Card>
 
-            <div className="detail-section">
-              <strong>Coordenadas:</strong>
-              <p>{selectedReport.latitud}, {selectedReport.longitud}</p>
-            </div>
-
-            <div className="detail-section">
-              <strong>Observaciones:</strong>
-              <p>{selectedReport.observaciones || 'Sin observaciones'}</p>
-            </div>
-
-            {selectedReport.detalle_poste && (
-              <div className="detail-section">
-                <strong>Detalle del Poste:</strong>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <strong>Código:</strong>
-                    <span>{selectedReport.detalle_poste.codigo}</span>
-                  </div>
-                  <div className="detail-item">
-                    <strong>Tensión:</strong>
-                    <span>{selectedReport.detalle_poste.tension}</span>
-                  </div>
-                  <div className="detail-item">
-                    <strong>Altura:</strong>
-                    <span>{selectedReport.detalle_poste.altura}m</span>
-                  </div>
-                  <div className="detail-item">
-                    <strong>Propietario:</strong>
-                    <span>{selectedReport.detalle_poste.propietario}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedReport.fotos && selectedReport.fotos.length > 0 && (
-              <div className="detail-section">
-                <strong>Fotos:</strong>
-                <div className="photos-grid">
-                  {selectedReport.fotos.map((foto) => (
-                    <div key={foto.id} className="photo-item">
-                      <img src={foto.url} alt={foto.tipo} />
-                      <p>{foto.tipo}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
+      <ReporteDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedReporte(null);
+        }}
+        reporte={selectedReporte}
+        onAprobar={handleAprobar}
+        onRechazar={handleRechazar}
+        onObservar={handleObservar}
+        userRole="supervisor"
+      />
     </div>
   );
 };
