@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polygon, Marker, Popup, useMap } from 'react-leaflet';
-import { exportToExcel, exportToPDF, showExportModal } from '../../utils/exportUtils';
+import { exportToExcel } from '../../utils/exportUtils';
 import mapService from '../../services/mapService';
 import Button from '../../components/common/Button';
 import { 
@@ -93,54 +93,9 @@ const MapaInteractivo = () => {
     }
   };
 
-  const handleExport = async () => {
-    try {
-      setLoading(true);
-      
-      // Preparar datos para exportación
-      const dataToExport = polygons.map(polygon => ({
-        'ID': polygon.id,
-        'Nombre': polygon.name,
-        'Tipo': polygon.type,
-        'Distrito': polygon.distrito || '-',
-        'Zona': polygon.zona || '-',
-        'Zonas': polygon.zonas || 0,
-        'Sectores': polygon.sectores || 0,
-        'Personal': polygon.personal || 0,
-        'Coordenadas': `${polygon.coordinates.length} puntos`,
-        'Color': polygon.color
-      }));
-
-      if (dataToExport.length === 0) {
-        alert('⚠️ No hay polígonos para exportar');
-        setLoading(false);
-        return;
-      }
-
-      await showExportModal(
-        () => {
-          try {
-            exportToExcel(dataToExport, 'Mapa_Territorial_FieldOps');
-            alert('✅ Datos del mapa exportados a Excel exitosamente');
-          } catch (error) {
-            alert('❌ Error al exportar a Excel: ' + error.message);
-          }
-        },
-        () => {
-          try {
-            exportToPDF(dataToExport, 'Mapa_Territorial_FieldOps');
-            alert('✅ Abriendo vista previa de impresión para PDF');
-          } catch (error) {
-            alert('❌ Error al exportar a PDF: ' + error.message);
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Error al exportar:', error);
-      alert('❌ Error al exportar datos: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleExport = () => {
+    // prepara tus datos
+    exportToExcel(data, 'nombre_archivo');
   };
 
   const handleDrawPolygon = () => {

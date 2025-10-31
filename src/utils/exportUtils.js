@@ -1,140 +1,166 @@
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 /**
  * Exportar datos a Excel
  */
-export const exportToExcel = (data, filename = 'export') => {
+export const exportToExcel = (data, filename = 'reporte') => {
   try {
-    // Crear un nuevo libro de trabajo
+    // Crear workbook
     const wb = XLSX.utils.book_new();
     
-    // Convertir datos a hoja de trabajo
+    // Convertir datos a worksheet
     const ws = XLSX.utils.json_to_sheet(data);
     
-    // Agregar la hoja al libro
+    // Ajustar ancho de columnas automáticamente
+    const maxWidth = 50;
+    const wscols = Object.keys(data[0] || {}).map(() => ({ wch: maxWidth }));
+    ws['!cols'] = wscols;
+    
+    // Agregar worksheet al workbook
     XLSX.utils.book_append_sheet(wb, ws, 'Datos');
     
     // Generar archivo y descargar
-    XLSX.writeFile(wb, `${filename}_${new Date().getTime()}.xlsx`);
+    XLSX.writeFile(wb, `${filename}.xlsx`);
     
-    return true;
+    return { success: true };
   } catch (error) {
     console.error('Error al exportar a Excel:', error);
-    throw error;
+    return { success: false, error };
   }
 };
 
 /**
- * Exportar datos a PDF (usando impresión del navegador)
+ * Exportar datos a CSV
  */
-export const exportToPDF = (data, filename = 'export') => {
+export const exportToCSV = (data, filename = 'reporte') => {
   try {
-    // Crear una ventana nueva para imprimir
-    const printWindow = window.open('', '_blank');
+    // Crear workbook y worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
     
-    if (!printWindow) {
-      throw new Error('No se pudo abrir ventana de impresión. Verifica que los popups estén permitidos.');
+    // Agregar worksheet
+    XLSX.utils.book_append_sheet(wb, ws, 'Datos');
+    
+    // Generar archivo CSV
+    XLSX.writeFile(wb, `${filename}.csv`, { bookType: 'csv' });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error al exportar a CSV:', error);
+    return { success: false, error };
+  }
+};
+
+/**
+ * Exportar datos a PDF
+ */
+export const exportToPDF = (data, filename = 'reporte', title = 'Reporte') => {
+  try {
+    // Crear documento PDF
+    const doc = new jsPDF('l', 'mm', 'a4'); // landscape, milímetros, tamaño A4
+    
+    // Configurar fuente
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    
+    // Título
+    doc.text(title, 14, 15);
+    
+    // Fecha de generación
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 14, 22);
+    
+    // Preparar columnas y filas
+    if (data.length === 0) {
+      doc.text('No hay datos para mostrar', 14, 35);
+    } else {
+      // Extraer headers (claves del primer objeto)
+      const headers = Object.keys(data[0]).map(key => ({
+        header: formatHeader(key),
+        dataKey: key
+      }));
+      
+      // Generar tabla
+      doc.autoTable({
+        startY: 28,
+        head: [headers.map(h => h.header)],
+        body: data.map(row => headers.map(h => row[h.dataKey] || '')),
+        styles: {
+          fontSize: 8,
+          cellPadding: 2
+        },
+        headStyles: {
+          fillColor: [0, 102, 204], // Color azul
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { left: 14, right: 14 }
+      });
     }
     
-    // Crear el HTML para el PDF
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${filename}</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 20px;
-            }
-            h1 {
-              color: #0066cc;
-              font-size: 24px;
-              margin-bottom: 20px;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 20px;
-            }
-            th, td {
-              border: 1px solid #ddd;
-              padding: 12px;
-              text-align: left;
-            }
-            th {
-              background-color: #0066cc;
-              color: white;
-              font-weight: bold;
-            }
-            tr:nth-child(even) {
-              background-color: #f2f2f2;
-            }
-            .metadata {
-              margin-bottom: 20px;
-              color: #666;
-              font-size: 12px;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>FieldOps - ${filename}</h1>
-          <div class="metadata">
-            <p><strong>Fecha de exportación:</strong> ${new Date().toLocaleString('es-PE')}</p>
-            <p><strong>Total de registros:</strong> ${data.length}</p>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                ${Object.keys(data[0] || {}).map(key => `<th>${key}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-              ${data.map(row => `
-                <tr>
-                  ${Object.values(row).map(value => `<td>${value || '-'}</td>`).join('')}
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
+    // Pie de página con número de páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.text(
+        `Página ${i} de ${pageCount}`,
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
     
-    printWindow.document.write(html);
-    printWindow.document.close();
+    // Guardar PDF
+    doc.save(`${filename}.pdf`);
     
-    // Esperar a que cargue y luego abrir diálogo de impresión
-    printWindow.onload = () => {
-      printWindow.print();
-      // No cerrar la ventana automáticamente para que el usuario pueda revisar
-    };
-    
-    return true;
+    return { success: true };
   } catch (error) {
     console.error('Error al exportar a PDF:', error);
-    throw error;
+    return { success: false, error };
   }
 };
 
 /**
- * Mostrar modal de selección de formato
+ * Formatear nombre de header (de snake_case a Title Case)
  */
-export const showExportModal = (onExcel, onPDF) => {
-  return new Promise((resolve) => {
-    const result = window.confirm(
-      '📥 EXPORTAR DATOS\n\n' +
-      'Selecciona el formato de exportación:\n\n' +
-      '✅ ACEPTAR = Excel (.xlsx)\n' +
-      '❌ CANCELAR = PDF (Impresión)'
-    );
+const formatHeader = (key) => {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+};
+
+/**
+ * Función principal de exportación
+ */
+export const exportData = async (format, data, filename, title) => {
+  try {
+    let result;
     
-    if (result) {
-      onExcel();
-    } else {
-      onPDF();
+    switch (format) {
+      case 'excel':
+      case 'xlsx':
+        result = exportToExcel(data, filename);
+        break;
+      case 'csv':
+        result = exportToCSV(data, filename);
+        break;
+      case 'pdf':
+        result = exportToPDF(data, filename, title);
+        break;
+      default:
+        throw new Error('Formato no soportado');
     }
     
-    resolve(result);
-  });
+    return result;
+  } catch (error) {
+    console.error('Error en exportación:', error);
+    return { success: false, error };
+  }
 };

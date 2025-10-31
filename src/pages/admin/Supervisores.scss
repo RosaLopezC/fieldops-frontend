@@ -1,7 +1,13 @@
 @import '../../styles/variables.scss';
 
-.admin-supervisores-page {
-  max-width: 100%;
+.admin-supervisores {
+  padding: $spacing-xl;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: $spacing-md;
+  }
 }
 
 .page-header {
@@ -9,35 +15,217 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: $spacing-xl;
-
-  h1 {
-    color: $color-azul;
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0 0 $spacing-xs 0;
-  }
-
-  p {
-    color: $color-texto-secundario;
-    margin: 0;
-    font-size: $font-size-base;
-  }
+  gap: $spacing-lg;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: $spacing-md;
+  }
+}
+
+.page-header-content {
+  flex: 1;
+
+  h1 {
+    margin: 0 0 $spacing-xs 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: $color-texto-principal;
+
+    @media (max-width: 768px) {
+      font-size: 24px;
+    }
+  }
+
+  .page-subtitle {
+    margin: 0;
+    color: $color-texto-secundario;
+    font-size: $font-size-base;
+  }
+}
+
+.page-header-actions {
+  display: flex;
+  gap: $spacing-md;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+
+    button {
+      flex: 1;
+    }
+  }
+}
+
+.filters-card {
+  margin-bottom: $spacing-xl;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+
+  @media (max-width: 968px) {
+    flex-direction: column;
     align-items: stretch;
   }
 }
 
-.action-buttons {
+.filters-left {
   display: flex;
-  gap: $spacing-sm;
-  justify-content: center;
-  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+
+  .search-bar {
+    flex: 1;
+    max-width: 400px;
+
+    @media (max-width: 968px) {
+      max-width: none;
+    }
+  }
+
+  button.active {
+    background: rgba($color-azul, 0.1);
+    border-color: $color-azul;
+    color: $color-azul;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
-// Formulario del modal
+.filters-right {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.filters-panel {
+  padding: 0 $spacing-lg $spacing-lg;
+  border-top: 1px solid $color-border;
+  margin-top: $spacing-lg;
+  animation: slideDown 0.3s ease-out;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-lg;
+  margin-top: $spacing-lg;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  &--date {
+    grid-column: span 2;
+
+    @media (max-width: 768px) {
+      grid-column: span 1;
+    }
+  }
+
+  label {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $color-texto-secundario;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.filter-select {
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background: white;
+  cursor: pointer;
+  transition: all $transition-speed;
+
+  &:hover {
+    border-color: darken($color-border, 10%);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-azul;
+    box-shadow: 0 0 0 3px rgba($color-azul, 0.1);
+  }
+}
+
+.filters-actions {
+  margin-top: $spacing-lg;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.table-actions {
+  display: flex;
+  gap: $spacing-xs;
+  justify-content: center;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: all $transition-speed;
+  background: transparent;
+
+  &--edit {
+    color: $color-azul;
+
+    &:hover {
+      background: rgba($color-azul, 0.1);
+    }
+  }
+
+  &--danger {
+    color: $color-danger;
+
+    &:hover {
+      background: rgba($color-danger, 0.1);
+    }
+  }
+
+  &--success {
+    color: $color-success;
+
+    &:hover {
+      background: rgba($color-success, 0.1);
+    }
+  }
+
+  &--warning {
+    color: $color-warning;
+
+    &:hover {
+      background: rgba($color-warning, 0.1);
+    }
+  }
+
+  svg {
+    font-size: 14px;
+  }
+}
+
 .supervisor-form {
   display: flex;
   flex-direction: column;
@@ -45,23 +233,35 @@
 }
 
 .form-row {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-row-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-md;
+  gap: $spacing-lg;
 
-  @media (max-width: 768px) {
+  @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: $spacing-md;
-  margin-top: $spacing-md;
+.form-note {
+  padding: $spacing-md;
+  background: rgba($color-azul, 0.05);
+  border-left: 3px solid $color-azul;
+  border-radius: $border-radius;
+
+  small {
+    color: $color-texto-secundario;
+    font-size: $font-size-sm;
+    line-height: 1.5;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

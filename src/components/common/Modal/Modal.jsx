@@ -1,76 +1,109 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes } from 'react-icons/fa';
 import Button from '../Button';
 import './Modal.scss';
 
-const Modal = ({ 
-  isOpen, 
-  onClose, 
-  title, 
+const Modal = ({
+  isOpen = false,
+  onClose,
+  title = '',
   children,
-  size = 'medium',
-  closeOnOverlayClick = true
+  footer = null,
+  size = 'medium', // small, medium, large, xlarge
+  closeOnOverlayClick = true,
+  closeOnEsc = true,
+  showCloseButton = true,
+  className = ''
 }) => {
-  // Cerrar con ESC
   useEffect(() => {
+    if (!isOpen) return;
+
+    // Prevenir scroll del body cuando el modal está abierto
+    document.body.style.overflow = 'hidden';
+
+    // Manejar tecla ESC
     const handleEsc = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (closeOnEsc && e.key === 'Escape') {
         onClose();
       }
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
 
-  // Prevenir scroll del body cuando el modal está abierto
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.addEventListener('keydown', handleEsc);
+
     return () => {
       document.body.style.overflow = 'unset';
+      document.removeEventListener('keydown', handleEsc);
     };
-  }, [isOpen]);
+  }, [isOpen, closeOnEsc, onClose]);
 
   if (!isOpen) return null;
 
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget && closeOnOverlayClick) {
+    if (closeOnOverlayClick && e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const modalClasses = [
-    'modal__content',
-    size === 'large' && 'modal__content--large',
-    size === 'small' && 'modal__content--small'
-  ].filter(Boolean).join(' ');
-
-  return (
+  const modalContent = (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div
-        className={modalClasses}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal__header">
-          <h2 className="modal__title">{title}</h2>
-          <button 
-            className="modal__close"
-            onClick={onClose}
-            aria-label="Cerrar modal"
-          >
-            <FaTimes />
-          </button>
+      <div className={`modal-container modal-container--${size} ${className}`}>
+        <div className="modal-header">
+          <h2 className="modal-title">{title}</h2>
+          {showCloseButton && (
+            <button
+              className="modal-close-btn"
+              onClick={onClose}
+              aria-label="Cerrar modal"
+            >
+              <FaTimes />
+            </button>
+          )}
         </div>
 
-        <div className="modal__body">
+        <div className="modal-body">
           {children}
         </div>
+
+        {footer && (
+          <div className="modal-footer">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
+
+// Componente auxiliar para footer con botones estándar
+Modal.Footer = ({
+  onCancel,
+  onConfirm,
+  cancelText = 'Cancelar',
+  confirmText = 'Guardar',
+  confirmLoading = false,
+  confirmDisabled = false,
+  confirmVariant = 'primary'
+}) => (
+  <div className="modal-footer-actions">
+    <Button
+      variant="outline"
+      onClick={onCancel}
+      disabled={confirmLoading}
+    >
+      {cancelText}
+    </Button>
+    <Button
+      variant={confirmVariant}
+      onClick={onConfirm}
+      loading={confirmLoading}
+      disabled={confirmDisabled}
+    >
+      {confirmText}
+    </Button>
+  </div>
+);
 
 export default Modal;

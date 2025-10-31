@@ -1,0 +1,368 @@
+@import '../../../styles/variables.scss';
+
+.reporte-detail {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.reporte-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: $spacing-lg;
+  border-bottom: 2px solid $color-border;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+    align-items: flex-start;
+  }
+}
+
+.reporte-header-left {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.reporte-id {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: $color-texto-principal;
+}
+
+.reporte-tipo {
+  padding: $spacing-xs $spacing-lg;
+  background: rgba($color-azul, 0.1);
+  color: $color-azul;
+  border-radius: $border-radius-lg;
+  font-weight: 600;
+  font-size: $font-size-sm;
+}
+
+.reporte-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-xl;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.reporte-left,
+.reporte-right {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.info-section {
+  background: $color-fondo;
+  padding: $spacing-lg;
+  border-radius: $border-radius-lg;
+  border: 1px solid $color-border;
+}
+
+.section-title {
+  margin: 0 0 $spacing-lg 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: $color-texto-principal;
+  padding-bottom: $spacing-md;
+  border-bottom: 2px solid $color-border;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-item {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.info-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: $border-radius;
+  color: $color-azul;
+  font-size: 18px;
+}
+
+.info-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: $font-size-xs;
+  color: $color-texto-secundario;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  font-weight: 600;
+}
+
+.datos-tecnicos {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.dato-item {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-sm;
+  background: white;
+  border-radius: $border-radius;
+
+  &:nth-child(even) {
+    background: rgba($color-azul, 0.02);
+  }
+}
+
+.dato-label {
+  font-weight: 600;
+  color: $color-texto-secundario;
+  font-size: $font-size-sm;
+}
+
+.dato-value {
+  font-weight: 600;
+  color: $color-texto-principal;
+  font-size: $font-size-sm;
+}
+
+.observaciones-text {
+  margin: 0;
+  padding: $spacing-md;
+  background: white;
+  border-radius: $border-radius;
+  line-height: 1.6;
+  color: $color-texto-principal;
+  white-space: pre-wrap;
+}
+
+.historial-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.historial-item {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: white;
+  border-radius: $border-radius;
+  border-left: 3px solid $color-azul;
+}
+
+.historial-icon {
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.historial-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historial-action {
+  font-weight: 700;
+  color: $color-texto-principal;
+  font-size: $font-size-base;
+}
+
+.historial-user {
+  font-size: $font-size-sm;
+  color: $color-texto-secundario;
+}
+
+.historial-date {
+  font-size: $font-size-xs;
+  color: $color-texto-secundario;
+}
+
+.historial-comment {
+  margin-top: $spacing-xs;
+  padding: $spacing-sm;
+  background: rgba($color-warning, 0.1);
+  border-radius: $border-radius;
+  font-size: $font-size-sm;
+  font-style: italic;
+  color: darken($color-warning, 20%);
+}
+
+.fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.foto-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid $color-border;
+  transition: all $transition-speed;
+
+  &:hover {
+    border-color: $color-azul;
+    transform: scale(1.02);
+    box-shadow: $box-shadow-lg;
+
+    .foto-overlay {
+      opacity: 1;
+    }
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.foto-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  color: white;
+  opacity: 0;
+  transition: opacity $transition-speed;
+
+  svg {
+    font-size: 32px;
+  }
+
+  span {
+    font-weight: 600;
+    font-size: $font-size-base;
+  }
+}
+
+.foto-description {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-sm;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: $font-size-xs;
+  text-align: center;
+}
+
+.no-fotos,
+.no-gps {
+  padding: $spacing-xl;
+  text-align: center;
+  color: $color-texto-secundario;
+  background: white;
+  border-radius: $border-radius;
+}
+
+.mapa-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.gps-coords {
+  display: flex;
+  justify-content: space-around;
+  padding: $spacing-md;
+  background: white;
+  border-radius: $border-radius;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-texto-principal;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: $spacing-xs;
+    text-align: center;
+  }
+}
+
+.reporte-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: $spacing-lg;
+  border-top: 2px solid $color-border;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: $spacing-md;
+
+    > * {
+      width: 100%;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: $spacing-md;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+// Estilos del visor de imagen
+.image-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: $border-radius-lg;
+  }
+
+  .image-description {
+    text-align: center;
+    color: $color-texto-secundario;
+    font-style: italic;
+  }
+
+  .image-actions {
+    display: flex;
+    justify-content: center;
+  }
+}

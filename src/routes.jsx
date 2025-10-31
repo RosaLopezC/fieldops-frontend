@@ -25,7 +25,8 @@ import {
   MisDistritos,
   MisZonas,
   MisSectores,
-  MapaInteractivo // ← AGREGAR
+  MapaInteractivo, // ← AGREGAR
+  Configuracion // Agrega este import
 } from './pages/admin';
 
 // Páginas del Superadmin
@@ -156,7 +157,7 @@ const AppRoutes = () => {
           <Route path="territorial/sectores" element={<MisSectores />} />
           <Route path="territorial/mapa" element={<MapaInteractivo />} /> {/* ← CAMBIAR */}
           <Route path="reportes" element={<AdminReportes />} />
-          <Route path="configuracion" element={<ComingSoonPage role="Configuración" />} />
+          <Route path="configuracion" element={<Configuracion />} /> {/* ← CAMBIAR */}
           <Route path="" element={<Navigate to="dashboard" replace />} />
         </Route>
 

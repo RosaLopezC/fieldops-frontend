@@ -1,0 +1,50 @@
+@import '../../../styles/variables.scss';
+
+.confirm-dialog {
+  text-align: center;
+  padding: $spacing-lg 0;
+}
+
+.confirm-dialog-icon {
+  margin-bottom: $spacing-lg;
+
+  .confirm-icon {
+    font-size: 64px;
+
+    &--warning {
+      color: $color-warning;
+    }
+
+    &--danger {
+      color: $color-danger;
+    }
+
+    &--success {
+      color: $color-success;
+    }
+
+    &--info {
+      color: $color-azul;
+    }
+  }
+}
+
+.confirm-dialog-title {
+  margin: 0 0 $spacing-md 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: $color-texto-principal;
+}
+
+.confirm-dialog-message {
+  margin: 0 0 $spacing-xl 0;
+  font-size: $font-size-base;
+  color: $color-texto-secundario;
+  line-height: 1.5;
+}
+
+.confirm-dialog-actions {
+  .modal-footer-actions {
+    justify-content: center;
+  }
+}

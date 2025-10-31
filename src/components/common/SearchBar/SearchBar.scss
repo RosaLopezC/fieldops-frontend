@@ -1,0 +1,61 @@
+@import '../../../styles/variables.scss';
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-lg;
+  padding: 0 $spacing-md;
+  transition: all $transition-speed;
+
+  &:focus-within {
+    border-color: $color-azul;
+    box-shadow: 0 0 0 3px rgba($color-azul, 0.1);
+  }
+}
+
+.search-bar-icon {
+  color: $color-texto-secundario;
+  font-size: 16px;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.search-bar-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: $spacing-md 0;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background: transparent;
+
+  &::placeholder {
+    color: $color-texto-secundario;
+  }
+}
+
+.search-bar-clear {
+  background: transparent;
+  border: none;
+  color: $color-texto-secundario;
+  cursor: pointer;
+  padding: $spacing-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $border-radius;
+  transition: all $transition-speed;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $color-danger;
+    background: rgba($color-danger, 0.1);
+  }
+
+  svg {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,109 @@
+@import '../../../styles/variables.scss';
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  border-radius: $border-radius-lg;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all $transition-speed;
+
+  // Tamaños
+  &--small {
+    padding: 2px $spacing-sm;
+    font-size: $font-size-xs;
+
+    .status-badge-icon {
+      font-size: 10px;
+    }
+  }
+
+  &--medium {
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-sm;
+
+    .status-badge-icon {
+      font-size: 12px;
+    }
+  }
+
+  &--large {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-base;
+
+    .status-badge-icon {
+      font-size: 14px;
+    }
+  }
+
+  // Variante default (con fondo)
+  &--default {
+    &.status-badge--success {
+      background: rgba($color-success, 0.1);
+      color: darken($color-success, 10%);
+    }
+
+    &.status-badge--danger {
+      background: rgba($color-danger, 0.1);
+      color: darken($color-danger, 5%);
+    }
+
+    &.status-badge--warning {
+      background: rgba($color-warning, 0.1);
+      color: darken($color-warning, 20%);
+    }
+
+    &.status-badge--info {
+      background: rgba($color-azul, 0.1);
+      color: darken($color-azul, 5%);
+    }
+
+    &.status-badge--secondary {
+      background: rgba($color-texto-secundario, 0.1);
+      color: $color-texto-secundario;
+    }
+  }
+
+  // Variante outline (con borde)
+  &--outline {
+    background: transparent;
+    border-width: 1px;
+    border-style: solid;
+
+    &.status-badge--success {
+      border-color: $color-success;
+      color: darken($color-success, 10%);
+    }
+
+    &.status-badge--danger {
+      border-color: $color-danger;
+      color: darken($color-danger, 5%);
+    }
+
+    &.status-badge--warning {
+      border-color: $color-warning;
+      color: darken($color-warning, 20%);
+    }
+
+    &.status-badge--info {
+      border-color: $color-azul;
+      color: darken($color-azul, 5%);
+    }
+
+    &.status-badge--secondary {
+      border-color: $color-texto-secundario;
+      color: $color-texto-secundario;
+    }
+  }
+}
+
+.status-badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge-label {
+  line-height: 1;
+}

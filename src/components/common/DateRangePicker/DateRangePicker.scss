@@ -1,0 +1,77 @@
+@import '../../../styles/variables.scss';
+
+.date-range-picker {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  padding: $spacing-sm $spacing-md;
+  transition: all $transition-speed;
+  min-width: 180px;
+
+  &.focused {
+    border-color: $color-azul;
+    box-shadow: 0 0 0 3px rgba($color-azul, 0.1);
+  }
+
+  &:hover {
+    border-color: darken($color-border, 10%);
+  }
+}
+
+.date-icon {
+  color: $color-texto-secundario;
+  margin-right: $spacing-sm;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.date-input {
+  border: none;
+  outline: none;
+  font-size: $font-size-base;
+  color: $color-texto-principal;
+  background: transparent;
+  flex: 1;
+  padding: $spacing-xs 0;
+  cursor: pointer;
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+}
+
+.date-label {
+  position: absolute;
+  top: -10px;
+  left: $spacing-md;
+  background: white;
+  padding: 0 $spacing-xs;
+  font-size: $font-size-xs;
+  color: $color-texto-secundario;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.date-separator {
+  color: $color-texto-secundario;
+  font-weight: 500;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}

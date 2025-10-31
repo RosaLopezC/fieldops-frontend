@@ -1,364 +1,277 @@
-import React, { useState, useEffect } from 'react';
-import territorialService from '../../services/territorialService';
-import { exportToExcel, exportToPDF, showExportModal } from '../../utils/exportUtils'; // ← AGREGAR
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
-import Input from '../../components/common/Input';
-import Modal from '../../components/common/Modal';
+import React, { useState, useCallback } from 'react';
 import Table from '../../components/common/Table';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaDownload } from 'react-icons/fa';
+import SearchBar from '../../components/common/SearchBar';
+import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
+import Input from '../../components/common/Input';
+import Card from '../../components/common/Card';
+import StatusBadge from '../../components/common/StatusBadge';
+import ExportButton from '../../components/common/ExportButton';
+import { FaPlus, FaEdit, FaTrash, FaMapMarkedAlt } from 'react-icons/fa';
+import { exportData } from '../../utils/exportUtils';
 import './MisDistritos.scss';
 
+const mockDistritos = [
+  { id: 1, nombre: 'Lima Norte', zonas: 5, sectores: 12, estado: 'activo', fecha_creacion: '2024-01-15' },
+  { id: 2, nombre: 'Lima Sur', zonas: 4, sectores: 10, estado: 'activo', fecha_creacion: '2024-01-20' },
+  { id: 3, nombre: 'Lima Este', zonas: 3, sectores: 8, estado: 'activo', fecha_creacion: '2024-02-05' },
+  { id: 4, nombre: 'Lima Centro', zonas: 6, sectores: 15, estado: 'activo', fecha_creacion: '2024-02-10' }
+];
+
 const MisDistritos = () => {
-  const [distritos, setDistritos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [editingDistrito, setEditingDistrito] = useState(null);
-  const [filters, setFilters] = useState({
-    search: '',
-    estado: 'todos'
-  });
-  const [formData, setFormData] = useState({
-    nombre: ''
-  });
+  const [distritos, setDistritos] = useState(mockDistritos);
+  const [filteredData, setFilteredData] = useState(mockDistritos);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedDistrito, setSelectedDistrito] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, distrito: null });
 
-  useEffect(() => {
-    loadDistritos();
-  }, []);
+  const [formData, setFormData] = useState({ nombre: '' });
+  const [formErrors, setFormErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
-  const loadDistritos = async () => {
-    try {
-      setLoading(true);
-      const response = await territorialService.getDistritos(filters);
-      setDistritos(response.data);
-    } catch (error) {
-      console.error('Error al cargar distritos:', error);
-      alert('Error al cargar distritos: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleFilter = () => {
-    loadDistritos();
-  };
-
-  const handleDownload = async () => {
-    try {
-      // Preparar datos para exportación
-      const dataToExport = distritos.map(distrito => ({
-        'ID': distrito.id,
-        'Nombre': distrito.nombre,
-        'Zonas': `${distrito.zonas} zonas`,
-        'Sectores': `${distrito.sectores} sectores`,
-        'Supervisores': distrito.supervisores || 0,
-        'Encargados': distrito.encargados || 0,
-        'Estado': distrito.estado === 'activo' ? 'Activo' : 'Inactivo'
-      }));
-
-      if (dataToExport.length === 0) {
-        alert('⚠️ No hay datos para exportar');
-        return;
-      }
-
-      // Mostrar opciones de exportación
-      await showExportModal(
-        // Opción Excel
-        () => {
-          try {
-            exportToExcel(dataToExport, 'Distritos_FieldOps');
-            alert('✅ Archivo Excel descargado exitosamente');
-          } catch (error) {
-            alert('❌ Error al exportar a Excel: ' + error.message);
-          }
-        },
-        // Opción PDF
-        () => {
-          try {
-            exportToPDF(dataToExport, 'Distritos_FieldOps');
-            alert('✅ Abriendo vista previa de impresión para PDF');
-          } catch (error) {
-            alert('❌ Error al exportar a PDF: ' + error.message);
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Error en exportación:', error);
-      alert('Error al exportar: ' + error.message);
-    }
-  };
-
-  const handleOpenModal = (distrito = null) => {
-    if (distrito) {
-      setEditingDistrito(distrito);
-      setFormData({
-        nombre: distrito.nombre
-      });
+  // Filtrar por búsqueda
+  React.useEffect(() => {
+    if (searchTerm) {
+      setFilteredData(distritos.filter(d => 
+        d.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      ));
     } else {
-      setEditingDistrito(null);
-      setFormData({
-        nombre: ''
-      });
+      setFilteredData(distritos);
     }
-    setShowModal(true);
+  }, [searchTerm, distritos]);
+
+  const columns = [
+    { key: 'id', label: 'ID', width: '80px', sortable: true },
+    { key: 'nombre', label: 'Nombre', sortable: true },
+    { 
+      key: 'zonas', 
+      label: 'Zonas', 
+      width: '100px',
+      sortable: true,
+      render: (value) => <span style={{ fontWeight: 600, color: '#0066cc' }}>{value}</span>
+    },
+    { 
+      key: 'sectores', 
+      label: 'Sectores', 
+      width: '100px',
+      sortable: true,
+      render: (value) => <span style={{ fontWeight: 600, color: '#FF6B35' }}>{value}</span>
+    },
+    { 
+      key: 'estado', 
+      label: 'Estado', 
+      width: '120px',
+      sortable: true,
+      render: (value) => <StatusBadge status={value} />
+    },
+    { key: 'fecha_creacion', label: 'Fecha Creación', width: '130px', sortable: true }
+  ];
+
+  const renderActions = (distrito) => (
+    <div className="table-actions">
+      <button className="action-btn action-btn--edit" onClick={() => handleEdit(distrito)} title="Editar">
+        <FaEdit />
+      </button>
+      <button className="action-btn action-btn--danger" onClick={() => handleDelete(distrito)} title="Eliminar">
+        <FaTrash />
+      </button>
+    </div>
+  );
+
+  const handleCreate = () => {
+    setFormData({ nombre: '' });
+    setFormErrors({});
+    setSelectedDistrito(null);
+    setIsCreateModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditingDistrito(null);
-    setFormData({
-      nombre: ''
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      
-      if (editingDistrito) {
-        await territorialService.updateDistrito(editingDistrito.id, formData);
-      } else {
-        await territorialService.createDistrito(formData);
-      }
-      
-      handleCloseModal();
-      loadDistritos();
-    } catch (error) {
-      console.error('Error al guardar distrito:', error);
-      alert('Error al guardar: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (distritoId) => {
-    if (!window.confirm('¿Estás seguro de eliminar este distrito? Esta acción no se puede deshacer.')) {
+  const handleSaveCreate = async () => {
+    if (!formData.nombre.trim()) {
+      setFormErrors({ nombre: 'El nombre es requerido' });
       return;
     }
 
-    try {
-      setLoading(true);
-      await territorialService.deleteDistrito(distritoId);
-      loadDistritos();
-    } catch (error) {
-      console.error('Error al eliminar distrito:', error);
-      alert('Error al eliminar: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+    setSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const newDistrito = {
+      id: distritos.length + 1,
+      nombre: formData.nombre,
+      zonas: 0,
+      sectores: 0,
+      estado: 'activo',
+      fecha_creacion: new Date().toISOString().split('T')[0]
+    };
+
+    setDistritos(prev => [...prev, newDistrito]);
+    setIsCreateModalOpen(false);
+    setSaving(false);
+    alert('✅ Distrito creado exitosamente');
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
+  const handleEdit = (distrito) => {
+    setSelectedDistrito(distrito);
+    setFormData({ nombre: distrito.nombre });
+    setFormErrors({});
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!formData.nombre.trim()) {
+      setFormErrors({ nombre: 'El nombre es requerido' });
+      return;
+    }
+
+    setSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    setDistritos(prev => prev.map(d => 
+      d.id === selectedDistrito.id ? { ...d, nombre: formData.nombre } : d
+    ));
+
+    setIsEditModalOpen(false);
+    setSaving(false);
+    alert('✅ Distrito actualizado exitosamente');
+  };
+
+  const handleDelete = (distrito) => {
+    setConfirmDialog({ isOpen: true, distrito });
+  };
+
+  const handleConfirmDelete = async () => {
+    setSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    setDistritos(prev => prev.filter(d => d.id !== confirmDialog.distrito.id));
+    setConfirmDialog({ isOpen: false, distrito: null });
+    setSaving(false);
+    alert('✅ Distrito eliminado exitosamente');
+  };
+
+  const handleExport = useCallback(async (format, filename) => {
+    const dataToExport = filteredData.map(d => ({
+      'ID': d.id,
+      'Nombre': d.nombre,
+      'Zonas': d.zonas,
+      'Sectores': d.sectores,
+      'Estado': d.estado,
+      'Fecha Creación': d.fecha_creacion
     }));
-  };
 
-  const tableColumns = [
-    {
-      accessor: 'id',
-      header: 'ID',
-      width: '80px'
-    },
-    {
-      accessor: 'nombre',
-      header: 'Nombre del Distrito',
-      width: '200px'
-    },
-    {
-      accessor: 'zonas',
-      header: 'Zonas',
-      width: '100px',
-      render: (value) => `${value} zonas`
-    },
-    {
-      accessor: 'sectores',
-      header: 'Sectores',
-      width: '100px',
-      render: (value) => `${value} sectores`
-    },
-    {
-      accessor: 'personal_asignado',
-      header: 'Personal Asignado',
-      width: '220px'
-    },
-    {
-      accessor: 'estado',
-      header: 'Estado',
-      width: '100px',
-      render: (value) => (
-        <Badge variant={value === 'activo' ? 'success' : 'secondary'}>
-          {value === 'activo' ? 'Activo' : 'Inactivo'}
-        </Badge>
-      )
-    },
-    {
-      accessor: 'actions',
-      header: 'Acciones',
-      width: '180px',
-      render: (_, distrito) => (
-        <div className="action-buttons">
-          <Button
-            size="small"
-            variant="outline"
-            icon={<FaEye />}
-            title="Ver detalles"
-          />
-          <Button
-            size="small"
-            variant="outline"
-            icon={<FaEdit />}
-            onClick={() => handleOpenModal(distrito)}
-            title="Editar"
-          />
-          <Button
-            size="small"
-            variant="danger"
-            icon={<FaTrash />}
-            onClick={() => handleDelete(distrito.id)}
-            title="Eliminar"
-          />
-        </div>
-      )
-    }
-  ];
+    const result = await exportData(format, dataToExport, filename, 'Listado de Distritos');
+    if (result.success) return true;
+    throw new Error('Error al exportar');
+  }, [filteredData]);
 
   return (
-    <div className="mis-distritos-page">
-      {/* Header */}
+    <div className="distritos-page">
       <div className="page-header">
-        <div>
+        <div className="page-header-content">
           <h1>Mis Distritos</h1>
+          <p className="page-subtitle">Gestiona las divisiones territoriales de tu empresa</p>
         </div>
-        <Button
-          variant="primary"
-          icon={<FaPlus />}
-          onClick={() => handleOpenModal()}
-        >
-          Nuevo Distrito
-        </Button>
+        <div className="page-header-actions">
+          <Button variant="primary" leftIcon={<FaPlus />} onClick={handleCreate}>
+            Nuevo Distrito
+          </Button>
+        </div>
       </div>
 
-      {/* Filtros */}
-      <Card>
-        <div className="filters-section">
-          <div className="filters-row">
-            <div className="filter-group filter-search">
-              <Input
-                label="Buscador"
-                name="search"
-                value={filters.search}
-                onChange={handleFilterChange}
-                placeholder={
-                  // Cambiar según la vista
-                  "Buscar distrito..." // MisDistritos
-                  // "Buscar zona..." // MisZonas
-                  // "Buscar zona..." // MisSectores
-                }
-              />
-            </div>
-
-            <div className="filter-group">
-              <label className="filter-label">Estado</label>
-              <select
-                name="estado"
-                value={filters.estado}
-                onChange={handleFilterChange}
-                className="select-input"
-              >
-                <option value="todos">Selecciona uno</option>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <Button
-                variant="outline"
-                onClick={handleFilter}
-                disabled={loading}
-              >
-                Filtrar
-              </Button>
-            </div>
-
-            <div className="filter-group">
-              <Button
-                variant="warning"
-                icon={<FaDownload />}
-                onClick={handleDownload}
-              >
-                Descargar xlsx
-              </Button>
-            </div>
-          </div>
+      <Card className="filters-card">
+        <div className="filters-header">
+          <SearchBar
+            placeholder="Buscar distrito..."
+            onSearch={setSearchTerm}
+            initialValue={searchTerm}
+          />
+          <ExportButton
+            data={filteredData}
+            onExport={handleExport}
+            filename={`distritos-${new Date().toISOString().split('T')[0]}`}
+          />
         </div>
       </Card>
 
-      {/* Tabla */}
       <Card>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <p>Cargando distritos...</p>
-          </div>
-        ) : (
-          <Table
-            columns={tableColumns}
-            data={distritos}
-            emptyMessage="No hay distritos registrados"
-          />
-        )}
+        <Table
+          columns={columns}
+          data={filteredData}
+          actions={renderActions}
+          emptyMessage="No se encontraron distritos"
+          pagination={true}
+          itemsPerPage={10}
+          sortable={true}
+        />
       </Card>
 
-      {/* Modal */}
+      {/* Modal Crear */}
       <Modal
-        isOpen={showModal}
-        onClose={handleCloseModal}
-        title={editingDistrito ? 'Editar Distrito' : 'Nuevo Distrito'}
+        isOpen={isCreateModalOpen}
+        onClose={() => !saving && setIsCreateModalOpen(false)}
+        title="Crear Nuevo Distrito"
+        size="small"
       >
-        <form onSubmit={handleSubmit} className="distrito-form">
-          <div className="form-row">
-            <Input
-              label="Nombre del Distrito"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleInputChange}
-              required
-              fullWidth
-              placeholder="Ej: Lima Centro"
-            />
-          </div>
-
-          <div className="modal-actions">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCloseModal}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={loading}
-            >
-              {loading ? 'Guardando...' : editingDistrito ? 'Actualizar' : 'Crear'}
-            </Button>
-          </div>
-        </form>
+        <Input
+          label="Nombre del Distrito"
+          name="nombre"
+          value={formData.nombre}
+          onChange={(e) => {
+            setFormData({ nombre: e.target.value });
+            setFormErrors({});
+          }}
+          error={formErrors.nombre}
+          placeholder="Ej: Lima Norte"
+          required
+        />
+        <Modal.Footer
+          onCancel={() => setIsCreateModalOpen(false)}
+          onConfirm={handleSaveCreate}
+          confirmText="Crear"
+          confirmLoading={saving}
+        />
       </Modal>
+
+      {/* Modal Editar */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => !saving && setIsEditModalOpen(false)}
+        title="Editar Distrito"
+        size="small"
+      >
+        <Input
+          label="Nombre del Distrito"
+          name="nombre"
+          value={formData.nombre}
+          onChange={(e) => {
+            setFormData({ nombre: e.target.value });
+            setFormErrors({});
+          }}
+          error={formErrors.nombre}
+          required
+        />
+        <Modal.Footer
+          onCancel={() => setIsEditModalOpen(false)}
+          onConfirm={handleSaveEdit}
+          confirmText="Guardar"
+          confirmLoading={saving}
+        />
+      </Modal>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, distrito: null })}
+        onConfirm={handleConfirmDelete}
+        title="¿Eliminar Distrito?"
+        message={`¿Estás seguro de eliminar "${confirmDialog.distrito?.nombre}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        variant="danger"
+        loading={saving}
+      />
     </div>
   );
 };
